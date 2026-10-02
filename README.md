@@ -56,14 +56,14 @@ Tā kā Tev jau ir domēns Cloudflare, uz Orange Pi atliek palaist tuneli:
      - service: http_status:404
    ```
 2. Vai caur Cloudflare Zero Trust tīmekļa paneli:
-   * **Tunnels** ➔ Izvēlies savu Orange Pi tuneli.
+   * **Tunnels** ➔ Izvēlies savu Orange Pi tuneli (`orangepi`).
    * Pievieno **Public Hostname**:
-     * Subdomain: `kasetes` (vai `mixtape`)
-     * Domain: `tavsdomens.lv`
+     * Subdomain: `mixtape`
+     * Domain: `jonyz.org`
      * Type: `HTTP`
-     * URL: `localhost:8090` (vai `analog-vault:8090`, ja ir tajā pašā docker tīklā).
+     * URL: `analog-vault:8090` (ja ir tajā pašā docker tīklā) vai `192.168.1.145:8090`.
 
-Gatavs! Draugi no jebkuras vietas pasaulē varēs atvērt `https://kasetes.tavsdomens.lv`, meklēt dziesmas un salikt savus miksteipus.
+Gatavs! Draugi no jebkuras vietas pasaulē varēs atvērt `https://mixtape.jonyz.org`, meklēt dziesmas un salikt savus miksteipus.
 
 ---
 
