@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="lv" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Analog Vault • Kasešu & Vinila Miksteipi</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            analog: {
+              900: '#0b0f19',
+              800: '#111827',
+              700: '#1f2937',
+              600: '#374151',
+              accent: '#d97706',
+              gold: '#f59e0b',
+              glow: '#fbbf24'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    .tape-badge {
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body class="bg-analog-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-amber-600 selection:text-white">
+
+  <!-- ================= GATEKEEPER / LOGIN SCREEN ================= -->
+  <div id="gatekeeper-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-analog-900 via-slate-950 to-black">
+    <div class="max-w-md w-full bg-analog-800 rounded-2xl border border-slate-700/80 shadow-2xl p-6 sm:p-8 space-y-6 text-center relative overflow-hidden">
+      <!-- Vintage Tape Reel Decoration -->
+      <div class="absolute -top-12 -right-12 w-32 h-32 rounded-full border-4 border-amber-500/10 pointer-events-none flex items-center justify-center">
+        <div class="w-16 h-16 rounded-full border-2 border-amber-500/20"></div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/20 text-3xl">
+          📼
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
+          ANALOG VAULT
+          <span class="text-[10px] uppercase font-semibold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30">Studio</span>
+        </h1>
+        <p class="text-xs text-slate-400">Privātā Analogās Mūzikas Krātuve & Ierakstu Darbnīca</p>
+      </div>
+
+      <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-700/60 text-xs text-slate-300">
+        🔒 Piekļuve tikai ar Meistara PIN vai personīgo drauga piekļuves paroli.
+      </div>
+
+      <form id="gatekeeper-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 text-left mb-1.5">Piekļuves parole vai PIN kods:</label>
+          <input type="password" id="gatekeeper-input" required autofocus placeholder="Ievadi paroli vai PIN..."
+                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-center font-mono font-bold text-amber-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        </div>
+
+        <div id="gatekeeper-alert" class="hidden p-3 rounded-lg text-xs font-semibold text-center"></div>
+
+        <button type="submit" id="gatekeeper-btn" class="w-full py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:brightness-110 transition shadow-lg shadow-amber-500/20 uppercase tracking-wider">
+          🔓 Ieiet Krātuvē
+        </button>
+      </form>
+
+      <p class="text-[11px] text-slate-500">
+        Jāņa personīgā kasešu, vinila un lenšu kolekcija • Slēgta piekļuve
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP CONTAINER ================= -->
+  <div id="main-app-container" class="hidden min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar + Persistent Mixtape Progress Monitor -->
+  <header class="bg-analog-800/95 backdrop-blur border-b border-slate-700/70 sticky top-0 z-40 px-3 sm:px-4 pt-2.5 pb-2 shadow-lg">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-2 mb-2">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/20 text-black font-black text-sm">
+          📼
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5 leading-tight">
+            ANALOG VAULT
+            <span class="text-[9px] uppercase font-semibold bg-amber-500/20 text-amber-400 px-1 py-0.5 rounded border border-amber-500/30">Studio</span>
+          </h1>
+          <p class="text-[10px] text-slate-400 leading-none hidden sm:block">Kasešu & Vinila Ierakstu Krātuve</p>
+        </div>
+      </div>
+
+      <!-- Tab Buttons & User Role Badge -->
+      <div class="flex items-center space-x-1 sm:space-x-1.5">
+        <button onclick="switchTab('catalog')" id="tab-btn-catalog" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-black transition-all">
+          Katalogs
+        </button>
+        <button onclick="switchTab('mixtape')" id="tab-btn-mixtape" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1 relative">
+          Miksteips
+          <span id="nav-mixtape-count" class="bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+        </button>
+        <button onclick="switchTab('add')" id="tab-btn-add" class="hidden px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all">
+          📷 Skanēt
+        </button>
+        <button onclick="switchTab('orders')" id="tab-btn-orders" class="hidden px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all">
+          📦 Pasūtījumi
+        </button>
+        <button onclick="switchTab('access')" id="tab-btn-access" class="hidden px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all">
+          🔑 Piekļuves
+        </button>
+
+        <!-- User Role Badge & Logout Button -->
+        <div class="flex items-center gap-1 sm:gap-1.5 ml-1 sm:ml-2 pl-1.5 sm:pl-2 border-l border-slate-700">
+          <span id="user-role-badge" class="px-1.5 sm:px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 truncate max-w-[100px] sm:max-w-none">
+            Meistars
+          </span>
+          <button onclick="handleLogout()" class="px-1.5 py-1 rounded text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition text-xs font-bold" title="Iziet">
+            🚪
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE MIXTAPE PROGRESS MONITOR (ALWAYS VISIBLE WHILE BROWSING!) -->
+    <div id="sticky-tape-monitor" class="max-w-5xl mx-auto pt-2 border-t border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      
+      <!-- Left: Tape format selector & total count -->
+      <div class="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-amber-400 font-bold text-[11px] flex items-center gap-1">
+            <span>🎛️</span>
+            <span>Kasete:</span>
+          </span>
+          <select id="quick-target-media" onchange="syncTapeLimit(this.value)"
+                  class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] font-bold text-amber-400 focus:outline-none cursor-pointer">
+            <option value="C60" selected>C-60 (30 min / puse)</option>
+            <option value="C90">C-90 (45 min / puse)</option>
+            <option value="C46">C-46 (23 min / puse)</option>
+            <option value="C120">C-120 (60 min / puse)</option>
+          </select>
+        </div>
+        <div class="sm:hidden text-[11px] text-slate-300 font-mono">
+          Kopā: <strong id="quick-total-count-mobile" class="text-amber-400">0</strong> dz.
+        </div>
+      </div>
+
+      <!-- Center: SIDE A & SIDE B PROGRESS BARS -->
+      <div class="grid grid-cols-2 gap-2 sm:gap-3 flex-1 sm:max-w-xl">
+        
+        <!-- SIDE A MONITOR -->
+        <div id="monitor-box-a" class="bg-slate-900/90 rounded-lg p-1.5 px-2 border border-slate-700/80 transition-all duration-200">
+          <div class="flex justify-between items-center text-[10px] font-mono leading-tight mb-1">
+            <span class="font-bold text-amber-400 flex items-center gap-1">
+              <span>PUSE A</span>
+              <span id="mini-count-a" class="text-slate-400 font-normal">(0)</span>
+            </span>
+            <span id="mini-time-a" class="text-slate-200 font-bold">0:00 / 30:00</span>
+          </div>
+          <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div id="mini-prog-a" class="bg-amber-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between items-center text-[9px] font-mono mt-0.5 leading-none">
+            <span class="text-slate-500">Ietilpība</span>
+            <span id="mini-left-a" class="text-amber-300/90 font-medium">Atlicis 30:00</span>
+          </div>
+        </div>
+
+        <!-- SIDE B MONITOR -->
+        <div id="monitor-box-b" class="bg-slate-900/90 rounded-lg p-1.5 px-2 border border-slate-700/80 transition-all duration-200">
+          <div class="flex justify-between items-center text-[10px] font-mono leading-tight mb-1">
+            <span class="font-bold text-sky-400 flex items-center gap-1">
+              <span>PUSE B</span>
+              <span id="mini-count-b" class="text-slate-400 font-normal">(0)</span>
+            </span>
+            <span id="mini-time-b" class="text-slate-200 font-bold">0:00 / 30:00</span>
+          </div>
+          <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div id="mini-prog-b" class="bg-sky-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between items-center text-[9px] font-mono mt-0.5 leading-none">
+            <span class="text-slate-500">Ietilpība</span>
+            <span id="mini-left-b" class="text-sky-300/90 font-medium">Atlicis 30:00</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: Jump to Mixtape Button -->
+      <button onclick="switchTab('mixtape')" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-black border border-amber-500/30 text-xs font-bold transition shrink-0">
+        <span>Miksteips</span>
+        <span class="text-[10px]">→</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 pb-24">
+
+    <!-- ================= TAB 1: KATALOGS & MEKLĒTĀJS ================= -->
+    <section id="view-catalog" class="space-y-4">
+      <div class="bg-analog-800 rounded-xl p-3.5 border border-slate-700/60 shadow-lg space-y-3">
+        <div class="relative">
+          <input type="text" id="search-input" oninput="debounceSearch()" placeholder="Meklēt izpildītāju, dziesmu, albumu vai kodu (piem., Depeche, Pink Floyd)..."
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 pl-10">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <button onclick="clearSearch()" id="clear-search-btn" class="hidden absolute right-3 top-3 text-slate-400 hover:text-white text-xs">✕</button>
+        </div>
+
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+          <span class="text-slate-400 font-medium whitespace-nowrap">Formāts:</span>
+          <button onclick="setFilter('ALL')" id="filter-all" class="px-3 py-1 rounded-full bg-amber-500 text-black font-bold">Visi</button>
+          <button onclick="setFilter('MC')" id="filter-mc" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">📼 Kasetes (MC)</button>
+          <button onclick="setFilter('LP')" id="filter-lp" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">💽 Vinils (LP)</button>
+          <button onclick="setFilter('RT')" id="filter-rt" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">🎚️ Lentas (RT)</button>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center text-xs text-slate-400 px-1">
+        <span id="results-count">Ielādē kolekciju...</span>
+        <span>Izvēlies dziesmu un pievieno savam miksteipam</span>
+      </div>
+
+      <div id="media-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: MIKSTEIPA VEIDOTĀJS ================= -->
+    <section id="view-mixtape" class="hidden space-y-5">
+      <div class="bg-analog-800 rounded-xl p-4 border border-slate-700/60 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              🎛️ Jauns Miksteips (Mixtape)
+            </h2>
+            <p class="text-xs text-slate-400">Saliec dziesmas no sava analogā krājuma un pārbaudi laika limitu</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-300 font-semibold">Kasetes tips:</label>
+            <select id="mix-target-media" onchange="updateMixtapeView()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+              <option value="C60" selected>C-60 (2x 30 min)</option>
+              <option value="C90">C-90 (2x 45 min)</option>
+              <option value="C46">C-46 (2x 23 min)</option>
+              <option value="C120">C-120 (2x 60 min)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Miksteipa nosaukums</label>
+            <input type="text" id="mix-title" placeholder="Piem., 80s Synthwave & Rock Izlase"
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Drauga vārds / Pasūtītājs</label>
+            <input type="text" id="mix-creator" placeholder="Piem., Jānis Z."
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- SIDE A -->
+        <div class="bg-analog-800 rounded-xl p-4 border border-slate-700/60 shadow-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs">Puse A</span>
+            <span id="time-label-a" class="text-xs font-mono font-bold text-slate-300">00:00 / 30:00</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700">
+            <div id="prog-bar-a" class="bg-amber-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div id="warn-a" class="hidden text-[11px] text-red-400 font-semibold bg-red-950/40 p-1.5 rounded border border-red-800/40">
+            ⚠️ Dziesmas pārsniedz A puses ietilpību!
+          </div>
+          <div id="tracks-a" class="space-y-1.5 min-h-[140px] text-xs"></div>
+        </div>
+
+        <!-- SIDE B -->
+        <div class="bg-analog-800 rounded-xl p-4 border border-slate-700/60 shadow-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 font-bold text-xs">Puse B</span>
+            <span id="time-label-b" class="text-xs font-mono font-bold text-slate-300">00:00 / 30:00</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700">
+            <div id="prog-bar-b" class="bg-sky-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div id="warn-b" class="hidden text-[11px] text-red-400 font-semibold bg-red-950/40 p-1.5 rounded border border-red-800/40">
+            ⚠️ Dziesmas pārsniedz B puses ietilpību!
+          </div>
+          <div id="tracks-b" class="space-y-1.5 min-h-[140px] text-xs"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <button onclick="clearMixtape()" class="px-4 py-2 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-950/40 transition">
+          Iztukšot miksteipu
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="saveMixtape()" class="px-5 py-2.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:brightness-110 shadow-lg shadow-amber-500/20 transition">
+            💾 Saglabāt Miksteipu
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: PIEVIENOT KASETI / SKANĒT ================= -->
+    <section id="view-add" class="hidden max-w-2xl mx-auto space-y-4">
+      
+      <!-- SCANNING CONTROLS HERO BOX -->
+      <div class="bg-gradient-to-br from-analog-800 to-slate-900 rounded-xl p-5 border border-amber-500/40 shadow-xl space-y-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            📷 Automātiskā Kasetes Skanēšana
+          </h2>
+          <p class="text-xs text-slate-300">
+            Nofotografē kasetes vāciņu vai dziesmu sarakstu — sistēma automātiski nolasīs izpildītāju, albumu un dziesmas!
+          </p>
+        </div>
+
+        <!-- Camera Upload Trigger -->
+        <div class="bg-slate-900/80 p-4 rounded-xl border-2 border-dashed border-amber-500/50 text-center hover:border-amber-400 transition cursor-pointer relative">
+          <input type="file" id="camera-file-input" accept="image/*" capture="environment" onchange="handleAutoScanPhoto(this)"
+                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+          
+          <div id="scan-prompt-box" class="space-y-2 pointer-events-none">
+            <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-500/30">
+              📸
+            </div>
+            <div class="text-sm font-bold text-white">Nospied šeit, lai NOFOTOGRAFĒTU kaseti</div>
+            <div class="text-[11px] text-amber-400 font-medium">Telefons automātiski atvērs kameru un nolasīs tekstu</div>
+          </div>
+
+          <!-- Loading Spinner during OCR/AI -->
+          <div id="scan-loading-box" class="hidden py-4 space-y-3">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+            <div class="text-sm font-bold text-amber-400">🔍 Analizēju attēlu un nolasu dziesmas...</div>
+            <div class="text-[11px] text-slate-400">Lūdzu uzgaidi dažas sekundes</div>
+          </div>
+        </div>
+
+        <!-- Status / Result Alert -->
+        <div id="scan-status-alert" class="hidden p-3 rounded-lg text-xs font-semibold flex items-center justify-between">
+          <span id="scan-status-text"></span>
+          <button onclick="document.getElementById('scan-status-alert').classList.add('hidden')" class="text-slate-400 hover:text-white">✕</button>
+        </div>
+
+        <!-- Alternative: Quick Online Album Search -->
+        <div class="pt-2 border-t border-slate-700/60">
+          <div class="text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+            <span>🔎 Vai arī meklē pēc nosaukuma (Auto-Aizpildīt no bāzes):</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="quick-search-term" placeholder="Piem., Deep Purple vai Violator"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();handleQuickAlbumSearch();}"
+                   class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+            <button type="button" onclick="handleQuickAlbumSearch()" class="px-3 py-2 bg-amber-500 text-black hover:bg-amber-400 rounded-lg text-xs font-bold transition shadow">
+              ⚡ Meklēt
+            </button>
+          </div>
+          <!-- Multiple matching albums list -->
+          <div id="quick-search-results" class="hidden mt-2.5 space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <!-- AUTO-FILLED FORM -->
+      <div class="bg-analog-800 rounded-xl p-5 border border-slate-700/60 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-700/60 pb-2.5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            📝 Kasetes Dati (Pārbaudi un saglabā)
+          </h3>
+          <span id="scan-source-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            Auto-Nolasīts
+          </span>
+        </div>
+
+        <!-- Scanned Photo Thumbnail & Cover Photo Replacement -->
+        <div id="scan-preview-box" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-900/90 rounded-xl border border-amber-500/40 shadow-lg">
+          <div class="flex items-center gap-3">
+            <img id="scan-photo-preview" src="" alt="Kasetes foto" class="w-16 h-16 object-cover rounded-lg border border-slate-700 shadow shrink-0">
+            <div>
+              <span id="scan-photo-title" class="text-xs font-bold text-amber-400 block">📷 Kasetes attēls pievienots</span>
+              <span id="scan-photo-subtitle" class="text-[10px] text-slate-400">Teksts nolasīts no ieliktņa. Vari nomainīt uz vāciņa foto!</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <input type="file" id="replace-cover-input" accept="image/*" capture="environment" class="hidden" onchange="handleReplaceCoverPhoto(this)">
+            <button type="button" onclick="document.getElementById('replace-cover-input').click()"
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black hover:bg-amber-400 transition flex items-center gap-1 shadow">
+              <span>📷</span>
+              <span>Nomainīt vāciņa foto</span>
+            </button>
+            <button type="button" onclick="removeCoverPhoto()"
+                    class="px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700 transition"
+                    title="Noņemt attēlu">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Optional standalone "Add Cover Photo" button if no photo scanned -->
+        <div id="manual-add-photo-btn-box" class="flex justify-end">
+          <button type="button" onclick="document.getElementById('replace-cover-input').click()"
+                  class="text-xs text-amber-400/90 hover:text-amber-300 hover:underline flex items-center gap-1 font-semibold">
+            <span>📷</span>
+            <span>Pievienot kasetes vāciņa foto</span>
+          </button>
+        </div>
+
+        <form id="add-media-form" onsubmit="submitNewMedia(event)" class="space-y-3.5">
+          <!-- Hidden Photo URL -->
+          <input type="hidden" id="new-photo-url" value="">
+
+          <!-- Row 1: Code & Type -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nesēja tips</label>
+              <select id="new-type" onchange="fetchNextCode()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="MC" selected>📼 Kasete (MC)</option>
+                <option value="LP">💽 Vinila plate (LP)</option>
+                <option value="RT">🎚️ Lenta (RT)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Kods (Numurs)</label>
+              <input type="text" id="new-code" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono font-bold text-amber-400">
+            </div>
+          </div>
+
+          <!-- Row 2: Artist & Album -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Izpildītājs / Grupa *</label>
+              <input type="text" id="new-artist" required placeholder="Piem., Depeche Mode" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Albums / Nosaukums *</label>
+              <input type="text" id="new-album" required placeholder="Piem., Violator" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            </div>
+          </div>
+
+          <!-- Row 3: Year, Genre, Location -->
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Gads</label>
+              <input type="number" id="new-year" placeholder="1990" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Žanrs</label>
+              <input type="text" id="new-genre" placeholder="Pops / Roks" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Vieta / Plaukts</label>
+              <input type="text" id="new-shelf" value="Plaukts" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+              <div class="flex flex-wrap gap-1 mt-1.5">
+                <button type="button" onclick="document.getElementById('new-shelf').value = 'Plaukts'" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition">📚 Plaukts</button>
+                <button type="button" onclick="document.getElementById('new-shelf').value = 'Atvilktne'" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition">🗄️ Atvilktne</button>
+                <button type="button" onclick="document.getElementById('new-shelf').value = 'Dača'" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition">🏡 Dača</button>
+                <button type="button" onclick="document.getElementById('new-shelf').value = 'Kaste 1'" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 transition">📦 Kaste 1</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracklist Quick Input (Text-area parser) -->
+          <div class="pt-2 border-t border-slate-700/60">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-semibold text-slate-300">Dziesmu saraksts (A un B puses)</label>
+              <span class="text-[10px] text-slate-400">--- atdala puses, (3:45) ir garums</span>
+            </div>
+            <textarea id="new-tracks-raw" rows="7" placeholder="A1. Dziesma viens (4:12)&#10;A2. Dziesma divi (3:45)&#10;---&#10;B1. Dziesma trīs (5:20)&#10;B2. Dziesma četri (3:15)"
+                      class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-lg text-xs font-bold bg-amber-500 text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20 text-center uppercase tracking-wider">
+            💾 Saglabāt Kaseti Krātuvē
+          </button>
+        </form>
+
+        <!-- Collapsible Settings: AI Vision API Key -->
+        <div class="pt-3 border-t border-slate-700/60">
+          <details class="text-xs text-slate-400">
+            <summary class="cursor-pointer hover:text-amber-400 select-none font-semibold">
+              ⚙️ AI Vision Iestatījumi (Gemini API atslēga)
+            </summary>
+            <div class="mt-2.5 p-3 rounded bg-slate-900 border border-slate-800 space-y-2">
+              <p class="text-[11px] text-slate-400">
+                Lai nolasītu pat vissarežģītākos rokrakstus un senas kasetes ar mākslīgo intelektu, ievadi bezmaksas Google Gemini API atslēgu:
+              </p>
+              <div class="flex gap-2">
+                <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="flex-1 bg-slate-800 border border-slate-700 rounded px-2.5 py-1 text-xs text-white">
+                <button type="button" onclick="saveApiKey()" class="px-3 py-1 bg-amber-500 text-black font-bold rounded text-xs">
+                  Saglabāt
+                </button>
+              </div>
+              <div id="key-status" class="text-[10px] text-slate-500">Pārbauda...</div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: PASŪTĪJUMI & IERAKSTA PLĀNS ================= -->
+    <section id="view-orders" class="hidden space-y-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          📦 Saglabātie Miksteipi & Ieraksta Plāni
+        </h2>
+        <p class="text-xs text-slate-400">Draugu pasūtījumi, ieraksta instrukcijas un drukājamie J-Card vāciņi</p>
+      </div>
+
+      <div id="orders-list" class="space-y-3"></div>
+    </section>
+
+    <!-- ================= TAB 5: PIEKĻUVES & DROŠĪBA (ADMIN ONLY) ================= -->
+    <section id="view-access" class="hidden space-y-6">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          🔑 Piekļuves & Drošības Pārvaldība
+        </h2>
+        <p class="text-xs text-slate-400">Pārvaldi draugu piekļuves paroles un meistara PIN kodu. Kad neviena drauga parole nav aktīva, lapai var piekļūt tikai tu.</p>
+      </div>
+
+      <!-- Security Status Banner -->
+      <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-700/80 flex items-start gap-3">
+        <div class="text-2xl mt-0.5">🛡️</div>
+        <div class="space-y-1 text-xs">
+          <div class="font-bold text-amber-400">Anti-Bruteforce & Privātuma Aizsardzība Ir Aktīva</div>
+          <p class="text-slate-300 leading-relaxed">
+            Lapu no ārpuses aizsargā drošības vārti. Pēc 5 neveiksmīgiem paroles minēšanas mēģinājumiem attiecīgā IP adrese tiek bloķēta uz 60 sekundēm. Draugiem bez meistara PIN nav pieejama skanēšana, pasūtījumu vadība, plauktu numuri vai privātās piezīmes.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Left 2 Cols: Guest Passes List & Generator -->
+        <div class="md:col-span-2 space-y-4">
+          <!-- Create Guest Pass Card -->
+          <div class="bg-analog-800 rounded-xl p-4 sm:p-5 border border-slate-700/80 shadow-lg space-y-4">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <span>➕</span>
+              <span>Izveidot Jaunu Drauga Piekļuvi</span>
+            </h3>
+
+            <form id="create-guest-pass-form" onsubmit="handleCreateGuestPass(event)" class="space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-300 mb-1">Drauga Vārds:</label>
+                  <input type="text" id="new-guest-name" required placeholder="Piemēram: Pēteris, Laura..."
+                         class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-[11px] font-semibold text-slate-300">Piekļuves Parole / Kods:</label>
+                    <button type="button" onclick="generateRandomPassCode()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold underline">
+                      🎲 Ģenerēt kodu
+                    </button>
+                  </div>
+                  <input type="text" id="new-guest-code" required placeholder="Piemēram: peteris-tape vai 7788"
+                         class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono font-bold text-amber-400 focus:outline-none focus:border-amber-500">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Piezīmes (pēc izvēles):</label>
+                <input type="text" id="new-guest-notes" placeholder="Piemēram: Uzaicināts uz piektdienas vakara miksteipu..."
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-500">
+              </div>
+
+              <div class="flex justify-end pt-1">
+                <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs hover:brightness-110 transition shadow-md shadow-amber-500/10">
+                  + Izveidot Piekļuves Paroli
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Existing Passes List Card -->
+          <div class="bg-analog-800 rounded-xl p-4 sm:p-5 border border-slate-700/80 shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-white flex items-center gap-1.5 uppercase tracking-wider">
+                <span>👥</span>
+                <span>Draugu Piekļuves Paroles</span>
+              </h3>
+              <button onclick="loadGuestPasses()" class="text-xs text-slate-400 hover:text-white" title="Pārlādēt sarakstu">
+                🔄 Atsvaidzināt
+              </button>
+            </div>
+
+            <div id="guest-passes-list" class="space-y-2.5">
+              <div class="text-xs text-slate-500 py-3 text-center">Ielādē piekļuves...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 1 Col: Master PIN & Security Info -->
+        <div class="space-y-4">
+          <!-- Change Master PIN Card -->
+          <div class="bg-analog-800 rounded-xl p-4 sm:p-5 border border-slate-700/80 shadow-lg space-y-3">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <span>🔐</span>
+              <span>Meistara PIN Maiņa</span>
+            </h3>
+            <p class="text-[11px] text-slate-400">
+              Ar Meistara PIN tiek atvērta pilna sistēmas vadība, skanēšana un pasūtījumi.
+            </p>
+
+            <form id="change-pin-form" onsubmit="handleChangeMasterPin(event)" class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Pašreizējais PIN:</label>
+                <input type="password" id="old-master-pin" required placeholder="Piemēram: 1987"
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Jaunais PIN:</label>
+                <input type="password" id="new-master-pin" required placeholder="Vismaz 4 simboli..."
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-amber-400 focus:outline-none focus:border-amber-500">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Atkārto Jauno PIN:</label>
+                <input type="password" id="confirm-master-pin" required placeholder="Atkārto jauno PIN..."
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-amber-400 focus:outline-none focus:border-amber-500">
+              </div>
+
+              <div id="pin-change-status" class="hidden text-xs font-semibold p-2 rounded"></div>
+
+              <button type="submit" class="w-full py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition">
+                Saglabāt Jauno PIN
+              </button>
+            </form>
+          </div>
+
+          <!-- Quick Tips Card -->
+          <div class="bg-analog-800/60 rounded-xl p-4 border border-slate-700/60 space-y-2 text-xs text-slate-400">
+            <div class="font-bold text-slate-200 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>Kā darboties ar draugiem?</span>
+            </div>
+            <ul class="list-disc pl-4 space-y-1 text-[11px] leading-relaxed">
+              <li>Kad draugs grib izveidot miksteipu, izveido viņam paroli (piem. viņa vārdu).</li>
+              <li>Aizsūti draugam saiti un paroli.</li>
+              <li>Kad miksteips pasūtīts vai pasākums beidzies, vienkārši nospied <strong>Deaktivizēt</strong> vai <strong>Dzēst</strong>.</li>
+              <li>Kad paroles nav aktīvas, lapa ir pilnībā noslēgta ārpasaules acīm.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL: MEISTARA IERAKSTA CEĻVEDIS ================= -->
+  <div id="dubbing-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-analog-800 border border-slate-700 rounded-xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+        <div>
+          <h3 id="modal-title" class="text-sm font-bold text-white">Meistara Ieraksta Plāns</h3>
+          <p id="modal-subtitle" class="text-xs text-amber-400">Soli-pa-solim secība ierakstam no dekas/vinila</p>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div id="modal-body" class="p-4 overflow-y-auto space-y-4 text-xs font-mono"></div>
+
+      <div class="p-3.5 border-t border-slate-700 bg-slate-900/60 flex justify-between items-center">
+        <a id="modal-jcard-link" href="#" target="_blank" class="px-3 py-1.5 rounded bg-sky-600 text-white text-xs font-semibold hover:bg-sky-500 transition">
+          📄 Atvērt Drukājamo J-Card
+        </a>
+        <button onclick="closeModal()" class="px-4 py-1.5 rounded bg-slate-700 text-white text-xs hover:bg-slate-600">
+          Aizvērt
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: KASETES VĀCIŅA FOTO ================= -->
+  <div id="photo-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4" onclick="closePhotoModal()">
+    <div class="relative bg-analog-800 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl p-4 space-y-3" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-2.5">
+        <h3 id="photo-modal-title" class="text-sm font-bold text-white truncate pr-2">Kasetes Vāciņš</h3>
+        <button onclick="closePhotoModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <div class="max-h-[75vh] overflow-hidden flex items-center justify-center rounded-xl bg-black/50 border border-slate-800">
+        <img id="photo-modal-img" src="" alt="Kasetes vāciņš" class="max-h-[70vh] w-auto object-contain rounded-lg shadow-xl">
+      </div>
+      <div class="flex justify-between items-center text-xs pt-1">
+        <span class="text-slate-400 font-mono text-[11px]">Pilna izmēra attēls</span>
+        <button onclick="closePhotoModal()" class="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold">
+          Aizvērt
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ATRAŠANĀS VIETAS MAIŅA ================= -->
+  <div id="location-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLocationModal()">
+    <div class="relative bg-analog-800 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📍</span>
+          <div>
+            <h3 class="text-sm font-bold text-white leading-tight">Mainīt Atrašanās Vietu</h3>
+            <p id="location-modal-subtitle" class="text-[11px] text-amber-400 font-medium truncate max-w-[280px]">Kasete</p>
+          </div>
+        </div>
+        <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Quick Location Pickers (Plaukts, Atvilktne, Dača, etc.) -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-2">Ātrā izvēle:</label>
+        <div id="quick-locations-container" class="flex flex-wrap gap-1.5">
+          <!-- Dynamically populated with chips -->
+        </div>
+      </div>
+
+      <!-- Custom Location Input -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Ieraksti vai precizē vietu:</label>
+        <div class="relative">
+          <input type="text" id="custom-location-input" placeholder="piem., Atvilktne 2, Dačas skapis, Plaukts 3..."
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                 onkeydown="if(event.key === 'Enter') saveMediaLocation()">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700/60">
+        <button onclick="closeLocationModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition">
+          Atcelt
+        </button>
+        <button onclick="saveMediaLocation()" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95">
+          <span>💾 Saglabāt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden input for updating cover photo on existing catalog cassettes -->
+  <input type="file" id="edit-media-cover-input" accept="image/*" capture="environment" class="hidden" onchange="handleEditMediaCoverUpload(this)">
+
+  <!-- Floating Toast Notification -->
+  <div id="toast-notify" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none bg-slate-900/95 border border-amber-500/60 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold backdrop-blur max-w-sm">
+    <span id="toast-icon" class="text-xl">📼</span>
+    <span id="toast-msg" class="leading-tight">Kopēts!</span>
+  </div>
+
+  </div> <!-- End of #main-app-container -->
+
+  <!-- Client-side Logic -->
+  <script>
+    let currentUser = null;
+    let allMedia = [];
+    let currentFilter = 'ALL';
+    let currentMixtape = {
+      title: '',
+      creator_name: '',
+      target_media: 'C60',
+      items_a: [],
+      items_b: []
+    };
+
+    const TAPE_LIMITS = {
+      C46: 23 * 60,
+      C60: 30 * 60,
+      C90: 45 * 60,
+      C120: 60 * 60
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkAuthStatus();
+    });
+
+    // --- Authentication & Role Handling ---
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.authenticated) {
+          currentUser = data;
+          showMainApp(data);
+        } else {
+          currentUser = null;
+          showGatekeeper();
+        }
+      } catch (err) {
+        console.error('Auth pārbaudes kļūda:', err);
+        showGatekeeper();
+      }
+    }
+
+    function showMainApp(user) {
+      document.getElementById('gatekeeper-screen').classList.add('hidden');
+      document.getElementById('main-app-container').classList.remove('hidden');
+
+      const roleBadge = document.getElementById('user-role-badge');
+      const addBtn = document.getElementById('tab-btn-add');
+      const ordersBtn = document.getElementById('tab-btn-orders');
+      const accessBtn = document.getElementById('tab-btn-access');
+
+      if (user.role === 'admin') {
+        roleBadge.innerText = 'Meistars (Jānis)';
+        roleBadge.className = 'px-1.5 sm:px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 truncate max-w-[120px] sm:max-w-none';
+        addBtn.classList.remove('hidden');
+        ordersBtn.classList.remove('hidden');
+        accessBtn.classList.remove('hidden');
+
+        fetchNextCode();
+        loadMixtapes();
+        checkApiConfig();
+      } else {
+        roleBadge.innerText = `Draugs: ${user.name}`;
+        roleBadge.className = 'px-1.5 sm:px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 truncate max-w-[120px] sm:max-w-none';
+        addBtn.classList.add('hidden');
+        ordersBtn.classList.add('hidden');
+        accessBtn.classList.add('hidden');
+
+        // Prefill creator name for guest if empty
+        const creatorInput = document.getElementById('mix-creator');
+        if (creatorInput && !creatorInput.value) {
+          creatorInput.value = user.name;
+        }
+      }
+
+      loadMedia();
+      updateMixtapeView();
+    }
+
+    function showGatekeeper(errorMsg = null) {
+      document.getElementById('gatekeeper-screen').classList.remove('hidden');
+      document.getElementById('main-app-container').classList.add('hidden');
+      const alertBox = document.getElementById('gatekeeper-alert');
+      if (errorMsg) {
+        alertBox.innerText = errorMsg;
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-rose-950/80 text-rose-300 border border-rose-700/60 block';
+      } else {
+        alertBox.classList.add('hidden');
+      }
+      setTimeout(() => {
+        const input = document.getElementById('gatekeeper-input');
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+      }, 50);
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('gatekeeper-input');
+      const btn = document.getElementById('gatekeeper-btn');
+      const alertBox = document.getElementById('gatekeeper-alert');
+      const code = input.value.trim();
+
+      if (!code) return;
+
+      btn.disabled = true;
+      btn.innerText = 'Pārbauda piekļuvi...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Nepareizs kods vai parole');
+        }
+
+        currentUser = {
+          authenticated: true,
+          role: data.role,
+          name: data.name
+        };
+        input.value = '';
+        showMainApp(currentUser);
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-rose-950/80 text-rose-300 border border-rose-700/60 block';
+        input.select();
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔓 Ieiet Krātuvē';
+      }
+    }
+
+    async function handleLogout() {
+      if (confirm('Vai tiešām vēlies iziet no krātuves?')) {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (e) {}
+        currentUser = null;
+        showGatekeeper();
+      }
+    }
+
+    function switchTab(tab) {
+      ['catalog', 'mixtape', 'add', 'orders', 'access'].forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (view) view.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('bg-amber-500', 'text-black');
+          btn.classList.add('text-slate-300');
+        }
+      });
+      const targetView = document.getElementById(`view-${tab}`);
+      const targetBtn = document.getElementById(`tab-btn-${tab}`);
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.add('bg-amber-500', 'text-black');
+        targetBtn.classList.remove('text-slate-300');
+      }
+      if (tab === 'orders') loadMixtapes();
+      if (tab === 'access') loadGuestPasses();
+    }
+
+    function fmtTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // --- Image Compression for Mobile Camera (10MB -> 300KB) ---
+    function compressImage(file, maxDimension = 1600, quality = 0.85) {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) return resolve(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            if (width > maxDimension || height > maxDimension) {
+              if (width > height) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              } else {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(new File([blob], file.name || 'scan.jpg', { type: 'image/jpeg' }));
+              } else {
+                resolve(file);
+              }
+            }, 'image/jpeg', quality);
+          };
+          img.onerror = () => resolve(file);
+          img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // --- Auto-Scan Photo via Phone Camera ---
+    async function handleAutoScanPhoto(input) {
+      if (!input.files || input.files.length === 0) return;
+      const originalFile = input.files[0];
+
+      const promptBox = document.getElementById('scan-prompt-box');
+      const loadingBox = document.getElementById('scan-loading-box');
+      const alertBox = document.getElementById('scan-status-alert');
+      const alertText = document.getElementById('scan-status-text');
+
+      promptBox.classList.add('hidden');
+      loadingBox.classList.remove('hidden');
+      alertBox.classList.add('hidden');
+
+      try {
+        // Fast client compression for phone camera
+        const file = await compressImage(originalFile);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch('/api/scan-photo', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `Servera kļūda ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Populate fields
+        if (data.artist) document.getElementById('new-artist').value = data.artist;
+        if (data.album) document.getElementById('new-album').value = data.album;
+        if (data.year) document.getElementById('new-year').value = data.year;
+        if (data.genre) document.getElementById('new-genre').value = data.genre;
+        if (data.photo_url) {
+          document.getElementById('new-photo-url').value = data.photo_url;
+          const thumb = document.getElementById('scan-photo-preview');
+          const previewBox = document.getElementById('scan-preview-box');
+          const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
+          if (thumb && previewBox) {
+            thumb.src = data.photo_url;
+            document.getElementById('scan-photo-title').innerText = '📷 Kasetes attēls pievienots';
+            document.getElementById('scan-photo-subtitle').innerText = 'Teksts nolasīts no ieliktņa. Vari nomainīt uz vāciņa foto!';
+            previewBox.classList.remove('hidden');
+            if (manualBtnBox) manualBtnBox.classList.add('hidden');
+          }
+        }
+
+        // Check for OCR warning when confidence was too low
+        if (data.warning) {
+          alertText.innerText = `⚠️ ${data.warning}`;
+          alertBox.className = 'p-3 rounded-lg text-xs font-semibold flex items-center justify-between bg-amber-950/70 text-amber-300 border border-amber-700/60';
+          alertBox.classList.remove('hidden');
+          const quickInput = document.getElementById('quick-search-term');
+          quickInput.focus();
+          return;
+        }
+
+        // Populate tracklist
+        if (data.tracks && data.tracks.length > 0) {
+          const sideA = data.tracks.filter(t => t.side === 'A');
+          const sideB = data.tracks.filter(t => t.side === 'B');
+
+          let rawText = '';
+          sideA.forEach((t, i) => {
+            rawText += `A${i + 1}. ${t.title} (${fmtTime(t.duration_sec)})\n`;
+          });
+          if (sideB.length > 0) {
+            rawText += '---\n';
+            sideB.forEach((t, i) => {
+              rawText += `B${i + 1}. ${t.title} (${fmtTime(t.duration_sec)})\n`;
+            });
+          }
+          document.getElementById('new-tracks-raw').value = rawText;
+        }
+
+        // Show success badge
+        const badge = document.getElementById('scan-source-badge');
+        badge.innerText = `Nolasīts: ${data.source || 'AI Vision'}`;
+        badge.classList.remove('hidden');
+
+        alertText.innerText = `✅ Kasetes dati automātiski nolasīti (${data.tracks ? data.tracks.length : 0} dziesmas)! Pārbaudi un spied Saglabāt.`;
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold flex items-center justify-between bg-emerald-950/70 text-emerald-300 border border-emerald-700/60';
+        alertBox.classList.remove('hidden');
+
+        // Smooth scroll to form fields
+        document.getElementById('add-media-form').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        alertText.innerText = `⚠️ Kļūda nolasot: ${err.message}`;
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold flex items-center justify-between bg-rose-950/70 text-rose-300 border border-rose-700/60';
+        alertBox.classList.remove('hidden');
+      } finally {
+        promptBox.classList.remove('hidden');
+        loadingBox.classList.add('hidden');
+        input.value = ''; // Reset so the same file can be triggered again if desired
+      }
+    }
+
+    // --- Cover Photo Handlers ---
+    async function handleReplaceCoverPhoto(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      try {
+        const compressed = await compressImage(file);
+        const formData = new FormData();
+        formData.append('file', compressed);
+
+        const res = await fetch('/api/upload-photo', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Augšupielādes kļūda');
+
+        document.getElementById('new-photo-url').value = data.photo_url;
+        document.getElementById('scan-photo-preview').src = data.photo_url;
+        document.getElementById('scan-photo-title').innerText = '📷 Kasetes vāciņa foto pievienots';
+        document.getElementById('scan-photo-subtitle').innerText = 'Attēls veiksmīgi nomainīts uz vāciņa foto!';
+        document.getElementById('scan-preview-box').classList.remove('hidden');
+        const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
+        if (manualBtnBox) manualBtnBox.classList.add('hidden');
+        showToast('Vāciņa foto veiksmīgi nomainīts!', '📷');
+      } catch (err) {
+        alert('Kļūda augšupielādējot foto: ' + err.message);
+      } finally {
+        input.value = '';
+      }
+    }
+
+    function removeCoverPhoto() {
+      document.getElementById('new-photo-url').value = '';
+      document.getElementById('scan-preview-box').classList.add('hidden');
+      const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
+      if (manualBtnBox) manualBtnBox.classList.remove('hidden');
+      showToast('Kasetes attēls noņemts', '✕');
+    }
+
+    function triggerChangeCoverPhoto(mediaId) {
+      window._currentEditMediaId = mediaId;
+      document.getElementById('edit-media-cover-input').click();
+    }
+
+    async function handleEditMediaCoverUpload(input) {
+      if (!input.files || input.files.length === 0 || !window._currentEditMediaId) return;
+      const file = input.files[0];
+      const mediaId = window._currentEditMediaId;
+      try {
+        const compressed = await compressImage(file);
+        const formData = new FormData();
+        formData.append('file', compressed);
+
+        const res = await fetch(`/api/media/${mediaId}/photo`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Kļūda atjauninot vāciņu');
+
+        const m = allMedia.find(item => item.id === mediaId);
+        if (m) {
+          m.photo_url = data.photo_url;
+          renderCatalog();
+        }
+        showToast('Kasetes vāciņš veiksmīgi atjaunināts!', '📷');
+      } catch (err) {
+        alert('Kļūda: ' + err.message);
+      } finally {
+        input.value = '';
+        window._currentEditMediaId = null;
+      }
+    }
+
+    function openPhotoModal(url, title) {
+      document.getElementById('photo-modal-img').src = url;
+      document.getElementById('photo-modal-title').innerText = title || 'Kasetes Vāciņš';
+      document.getElementById('photo-modal').classList.remove('hidden');
+    }
+
+    function closePhotoModal() {
+      document.getElementById('photo-modal').classList.add('hidden');
+    }
+
+    // --- Location Editor Modal ---
+    let currentEditLocationMediaId = null;
+
+    function openChangeLocationModal(mediaId, currentLoc, mediaTitle) {
+      currentEditLocationMediaId = mediaId;
+      document.getElementById('location-modal-subtitle').innerText = mediaTitle || 'Kasete';
+      const input = document.getElementById('custom-location-input');
+      input.value = currentLoc || 'Plaukts';
+
+      const defaultChips = [
+        { label: 'Plaukts', icon: '📚' },
+        { label: 'Atvilktne', icon: '🗄️' },
+        { label: 'Dača', icon: '🏡' },
+        { label: 'Kaste 1', icon: '📦' },
+        { label: 'Koferis 1', icon: '🧳' },
+        { label: 'Auto', icon: '🚗' }
+      ];
+
+      // Collect existing unique locations from allMedia
+      const existingLocs = new Set();
+      if (typeof allMedia !== 'undefined' && Array.isArray(allMedia)) {
+        allMedia.forEach(m => {
+          if (m.shelf_location && m.shelf_location.trim() && m.shelf_location !== 'Kolekcijā') {
+            existingLocs.add(m.shelf_location.trim());
+          }
+        });
+      }
+
+      const allChips = [...defaultChips];
+      existingLocs.forEach(loc => {
+        if (!allChips.some(c => c.label.toLowerCase() === loc.toLowerCase())) {
+          allChips.push({ label: loc, icon: '📍' });
+        }
+      });
+
+      const container = document.getElementById('quick-locations-container');
+      container.innerHTML = allChips.map(c => {
+        const isCurrent = (currentLoc || '').toLowerCase() === c.label.toLowerCase();
+        return `
+          <button type="button" onclick="selectQuickLocation('${escapeStr(c.label)}')"
+                  class="quick-loc-btn px-2.5 py-1 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 ${
+                    isCurrent
+                      ? 'bg-amber-500 text-black border-amber-400 font-bold shadow-sm'
+                      : 'bg-slate-900/90 text-slate-300 hover:text-white hover:bg-slate-800 border-slate-700/80'
+                  }">
+            <span>${c.icon}</span>
+            <span>${c.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('location-modal').classList.remove('hidden');
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 50);
+    }
+
+    function selectQuickLocation(loc) {
+      const input = document.getElementById('custom-location-input');
+      input.value = loc;
+      const buttons = document.querySelectorAll('.quick-loc-btn');
+      buttons.forEach(btn => {
+        const text = btn.innerText.replace(/^.*? /, '').trim();
+        if (text.toLowerCase() === loc.toLowerCase()) {
+          btn.className = 'quick-loc-btn px-2.5 py-1 rounded-lg text-xs font-bold border transition flex items-center gap-1.5 bg-amber-500 text-black border-amber-400 shadow-sm';
+        } else {
+          btn.className = 'quick-loc-btn px-2.5 py-1 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 bg-slate-900/90 text-slate-300 hover:text-white hover:bg-slate-800 border-slate-700/80';
+        }
+      });
+    }
+
+    function closeLocationModal() {
+      document.getElementById('location-modal').classList.add('hidden');
+      currentEditLocationMediaId = null;
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLocationModal();
+        closePhotoModal();
+      }
+    });
+
+    async function saveMediaLocation() {
+      if (!currentEditLocationMediaId) return;
+      const input = document.getElementById('custom-location-input');
+      const newLoc = (input.value || '').trim() || 'Plaukts';
+
+      try {
+        const res = await fetch(`/api/media/${currentEditLocationMediaId}/location`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shelf_location: newLoc })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          alert('Kļūda saglabājot vietu: ' + (err.detail || 'Neizdevās'));
+          return;
+        }
+
+        // Update local item
+        if (typeof allMedia !== 'undefined' && Array.isArray(allMedia)) {
+          const item = allMedia.find(m => m.id === currentEditLocationMediaId);
+          if (item) {
+            item.shelf_location = newLoc;
+          }
+        }
+
+        // Update badge in DOM
+        const badge = document.getElementById(`loc-badge-${currentEditLocationMediaId}`);
+        if (badge) {
+          badge.innerText = newLoc;
+        }
+
+        closeLocationModal();
+        showToast(`📍 Vieta nomainīta: "${newLoc}"`, '📍');
+      } catch (err) {
+        console.error("Kļūda saglabājot vietu:", err);
+        alert("Neizdevās savienoties ar serveri.");
+      }
+    }
+
+    async function deleteMedia(id, title) {
+      if (confirm(`Vai tiešām vēlies dzēst "${title}" no savas krātuves?`)) {
+        try {
+          const res = await fetch(`/api/media/${id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('Neizdevās dzēst mediju');
+          loadMedia();
+          showToast('Kasete veiksmīgi dzēsta', '🗑️');
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+    }
+
+    // --- Quick Online Search Helper with Multi-Album Selection ---
+    async function handleQuickAlbumSearch() {
+      const term = document.getElementById('quick-search-term').value.trim();
+      if (!term) return alert('Ievadi albuma vai izpildītāja nosaukumu!');
+
+      const resultsContainer = document.getElementById('quick-search-results');
+      resultsContainer.classList.remove('hidden');
+      resultsContainer.innerHTML = '<div class="text-xs text-amber-400 py-2">🔍 Meklēju albumus bāzē...</div>';
+
+      try {
+        const res = await fetch(`/api/search-albums?q=${encodeURIComponent(term)}`);
+        const albums = await res.json();
+
+        if (!albums || albums.length === 0) {
+          resultsContainer.innerHTML = '<div class="text-xs text-slate-400 py-2">Neviens albums netika atrasts. Pārbaudi nosaukumu!</div>';
+          return;
+        }
+
+        resultsContainer.innerHTML = albums.map(a => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-700/80 hover:border-amber-500/60 transition gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img src="${a.artwork || ''}" class="w-10 h-10 rounded object-cover bg-slate-800 shrink-0" onerror="this.style.display='none'">
+              <div class="min-w-0 text-left">
+                <div class="text-xs font-bold text-white truncate">${a.artist} - ${a.album}</div>
+                <div class="text-[10px] text-slate-400">${a.year || ''} • ${a.genre || ''} • ${a.track_count || 0} dziesmas</div>
+              </div>
+            </div>
+            <button type="button" onclick="selectAlbum(${a.collection_id})" class="px-2.5 py-1.5 rounded bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 shrink-0 transition shadow">
+              ⚡ Izvēlēties
+            </button>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        resultsContainer.innerHTML = `<div class="text-xs text-rose-400 py-2">Kļūda meklējot: ${err.message}</div>`;
+      }
+    }
+
+    async function selectAlbum(collectionId) {
+      const resultsContainer = document.getElementById('quick-search-results');
+      const alertBox = document.getElementById('scan-status-alert');
+      const alertText = document.getElementById('scan-status-text');
+
+      try {
+        resultsContainer.innerHTML = '<div class="text-xs text-amber-400 py-2">Ielādēju dziesmu sarakstu...</div>';
+        const res = await fetch(`/api/album-details/${collectionId}`);
+        if (!res.ok) throw new Error('Neizdevās iegūt albuma dziesmas');
+        const data = await res.json();
+
+        if (data.artist) document.getElementById('new-artist').value = data.artist;
+        if (data.album) document.getElementById('new-album').value = data.album;
+        if (data.year) document.getElementById('new-year').value = data.year;
+        if (data.genre) document.getElementById('new-genre').value = data.genre;
+
+        if (data.artwork) {
+          document.getElementById('new-photo-url').value = data.artwork;
+          const thumb = document.getElementById('scan-photo-preview');
+          const previewBox = document.getElementById('scan-preview-box');
+          const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
+          if (thumb && previewBox) {
+            thumb.src = data.artwork;
+            document.getElementById('scan-photo-title').innerText = '📷 Albuma oficiālais vāciņš pievienots';
+            document.getElementById('scan-photo-subtitle').innerText = 'Vāciņš automātiski ielādēts no tiešsaistes bāzes!';
+            previewBox.classList.remove('hidden');
+            if (manualBtnBox) manualBtnBox.classList.add('hidden');
+          }
+        }
+
+        if (data.tracks && data.tracks.length > 0) {
+          const sideA = data.tracks.filter(t => t.side === 'A');
+          const sideB = data.tracks.filter(t => t.side === 'B');
+
+          let rawText = '';
+          sideA.forEach((t, i) => {
+            rawText += `A${i + 1}. ${t.title} (${fmtTime(t.duration_sec)})\n`;
+          });
+          if (sideB.length > 0) {
+            rawText += '---\n';
+            sideB.forEach((t, i) => {
+              rawText += `B${i + 1}. ${t.title} (${fmtTime(t.duration_sec)})\n`;
+            });
+          }
+          document.getElementById('new-tracks-raw').value = rawText;
+        }
+
+        const badge = document.getElementById('scan-source-badge');
+        badge.innerText = `Auto-Aizpildīts (iTunes)`;
+        badge.classList.remove('hidden');
+
+        alertText.innerText = `✅ Ielādēts albums: ${data.artist} - ${data.album} (${data.tracks.length} dziesmas ar laikiem)!`;
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold flex items-center justify-between bg-emerald-950/70 text-emerald-300 border border-emerald-700/60';
+        alertBox.classList.remove('hidden');
+
+        resultsContainer.classList.add('hidden');
+        document.getElementById('add-media-form').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        alert('Kļūda ielādējot albumu: ' + err.message);
+      }
+    }
+
+    // --- API Key Config ---
+    async function checkApiConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        const stat = document.getElementById('key-status');
+        if (data.has_key) {
+          stat.innerHTML = `🟢 AI Vision ir aktīvs (Atslēga: <span class="font-mono">${data.masked_key}</span>)`;
+          stat.className = 'text-[10px] text-emerald-400 font-medium';
+        } else {
+          stat.innerHTML = `⚪ API atslēga nav iestatīta (darbojas vietējais OCR + tiešsaistes bāzes)`;
+        }
+      } catch (e) {}
+    }
+
+    async function saveApiKey() {
+      const key = document.getElementById('gemini-key-input').value.trim();
+      const fd = new FormData();
+      fd.append('gemini_api_key', key);
+      await fetch('/api/config', { method: 'POST', body: fd });
+      alert('API atslēga saglabāta!');
+      checkApiConfig();
+    }
+
+    // --- Load Media Catalog ---
+    async function loadMedia(query = '') {
+      try {
+        let url = `/api/media?type=${currentFilter}`;
+        if (query) url += `&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        if (res.status === 401) {
+          showGatekeeper('Piekļuves sesija beigusies vai parole anulēta.');
+          return;
+        }
+        allMedia = await res.json();
+        renderCatalog();
+      } catch (err) {
+        console.error("Kļūda ielādējot medijus:", err);
+      }
+    }
+
+    let searchTimer;
+    function debounceSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const val = document.getElementById('search-input').value;
+        document.getElementById('clear-search-btn').classList.toggle('hidden', !val);
+        loadMedia(val);
+      }, 250);
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      loadMedia();
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      ['all', 'mc', 'lp', 'rt'].forEach(t => {
+        const btn = document.getElementById(`filter-${t}`);
+        if (btn) {
+          btn.className = (t === type.toLowerCase())
+            ? 'px-3 py-1 rounded-full bg-amber-500 text-black font-bold'
+            : 'px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700';
+        }
+      });
+      loadMedia(document.getElementById('search-input').value);
+    }
+
+    function renderCatalog() {
+      const container = document.getElementById('media-list');
+      document.getElementById('results-count').innerText = `Atrasti ${allMedia.length} ieraksti`;
+
+      if (allMedia.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 text-sm">
+            Nekas netika atrasts. Izmēģini citu meklēšanas vārdu vai nofotografē jaunu kaseti!
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = allMedia.map(m => {
+        const tracksA = m.tracks.filter(t => t.side === 'A');
+        const tracksB = m.tracks.filter(t => t.side === 'B');
+        const durA = tracksA.reduce((sum, t) => sum + t.duration_sec, 0);
+        const durB = tracksB.reduce((sum, t) => sum + t.duration_sec, 0);
+        const totalDur = durA + durB;
+
+        const badgeColor = m.media_type === 'MC' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                         : m.media_type === 'LP' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                         : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+
+        const typeLabel = m.media_type === 'MC' ? 'kaseti'
+                        : m.media_type === 'RT' ? 'lentu'
+                        : 'albumu';
+        const typeIcon = m.media_type === 'MC' ? '📼'
+                       : m.media_type === 'RT' ? '🧲'
+                       : '💿';
+
+        return `
+          <div class="relative overflow-hidden bg-analog-800 rounded-xl p-4 border border-slate-700/70 shadow-xl flex flex-col justify-between hover:border-slate-500 transition group">
+            
+            ${m.photo_url ? `
+              <!-- Semi-transparent Cassette Cover Art Background (Visible Under Tracklist!) -->
+              <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+                <img src="${m.photo_url}" alt="" class="w-full h-full object-cover object-center opacity-35 filter blur-[0.5px] scale-105 group-hover:opacity-45 group-hover:scale-100 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-analog-900/90 via-analog-900/75 to-analog-900/50"></div>
+              </div>
+            ` : ''}
+
+            <div class="relative z-10 flex flex-col justify-between h-full">
+              <div>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="tape-badge px-2 py-0.5 rounded text-[11px] font-bold border ${badgeColor}">
+                      ${m.code}
+                    </span>
+                    ${m.photo_url ? `
+                      <img src="${m.photo_url}" onclick="openPhotoModal('${m.photo_url}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                           title="Apskatīt vāciņu pilnā izmērā"
+                           class="w-7 h-7 object-cover rounded border border-slate-600/80 cursor-pointer hover:scale-110 transition shadow">
+                    ` : ''}
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    ${currentUser && currentUser.role === 'admin' ? `
+                      <button onclick="openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                              title="Mainīt vietu (Plaukts, Atvilktne, Dača...)"
+                              class="text-[10px] text-slate-300 hover:text-amber-300 bg-slate-900/90 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-800 hover:border-amber-500/50 transition flex items-center gap-1 group/loc cursor-pointer shadow-sm active:scale-95">
+                        <span>📍</span>
+                        <span id="loc-badge-${m.id}" class="font-medium">${m.shelf_location || 'Plaukts'}</span>
+                        <span class="text-[9px] text-slate-500 group-hover/loc:text-amber-400 transition">✏️</span>
+                      </button>
+                    ` : `
+                      <span class="text-[10px] text-slate-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">
+                        📍 ${m.shelf_location || 'Kolekcijā'}
+                      </span>
+                    `}
+                    ${currentUser && currentUser.role === 'admin' ? `
+                      <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt kasetes vāciņa attēlu"
+                              class="text-[11px] text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-800 transition">
+                        📷
+                      </button>
+                      <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst kaseti"
+                              class="text-[11px] text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition">
+                        🗑️
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-white leading-tight">${m.artist}</h3>
+                <p class="text-xs text-amber-400 font-medium">${m.album} ${m.year ? `(${m.year})` : ''}</p>
+                ${m.genre ? `<p class="text-[10px] text-slate-300 mt-0.5">${m.genre}</p>` : ''}
+                
+                <!-- Quick Copy Entire Media Button (Cassette / Tape / Vinyl) -->
+                <div class="mt-2.5">
+                  <button onclick="addAllMediaToMixtape(${m.id})"
+                          title="Iekopēt visas dziesmas miksteipā (Puse A ➔ Puse A, Puse B ➔ Puse B)"
+                          class="w-full py-1.5 px-2.5 rounded-lg text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 hover:border-transparent transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                    <span>${typeIcon}</span>
+                    <span>Kopēt visu ${typeLabel} uz miksteipu</span>
+                    <span class="text-[10px] font-mono opacity-80">(${m.tracks.length} dz. • ${fmtTime(totalDur)})</span>
+                  </button>
+                </div>
+
+                <!-- Tracklist Container with Glassmorphic Transparency (Artwork Visible Beneath!) -->
+                <div class="mt-3 pt-2 border-t border-slate-700/60 space-y-2 rounded-lg p-2 bg-slate-950/35 backdrop-blur-[1.5px] border border-slate-800/40">
+                  ${tracksA.length > 0 ? `
+                    <div>
+                      <div class="flex items-center justify-between pb-0.5">
+                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                          Puse A <span class="text-slate-400 font-normal">(${fmtTime(durA)})</span>
+                        </span>
+                        <button onclick="addSideToMixtape(${m.id}, 'A')"
+                                title="Iekopēt visas Puses A dziesmas miksteipa Pusē A"
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 font-bold transition">
+                          + Visa Puse A
+                        </button>
+                      </div>
+                      <div class="space-y-1 mt-1">
+                        ${tracksA.map(t => renderTrackRow(m, t)).join('')}
+                      </div>
+                    </div>` : ''}
+
+                  ${tracksB.length > 0 ? `
+                    <div class="mt-2">
+                      <div class="flex items-center justify-between pb-0.5">
+                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                          Puse B <span class="text-slate-500 font-normal">(${fmtTime(durB)})</span>
+                        </span>
+                        <button onclick="addSideToMixtape(${m.id}, 'B')"
+                                title="Iekopēt visas Puses B dziesmas miksteipa Pusē B"
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/15 hover:bg-sky-500 text-sky-300 hover:text-black border border-sky-500/30 font-bold transition">
+                          + Visa Puse B
+                        </button>
+                      </div>
+                      <div class="space-y-1 mt-1">
+                        ${tracksB.map(t => renderTrackRow(m, t)).join('')}
+                      </div>
+                    </div>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTrackRow(media, track) {
+      return `
+        <div class="flex items-center justify-between py-1 px-1.5 rounded hover:bg-slate-900/80 group/row text-xs transition">
+          <div class="flex items-center gap-1.5 truncate pr-2">
+            <span class="text-amber-400/80 font-mono text-[10px] font-bold">${track.track_num}.</span>
+            <span class="text-white font-medium truncate drop-shadow-sm">${track.title}</span>
+            <span class="text-[10px] text-slate-300">(${fmtTime(track.duration_sec)})</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0 opacity-85 group-hover/row:opacity-100">
+            <button onclick="addToMixtape(${track.id}, '${media.code}', '${escapeStr(media.artist)}', '${escapeStr(track.title)}', ${track.duration_sec}, 'A')"
+                    class="px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 hover:bg-amber-500 hover:text-black text-[10px] font-bold border border-amber-500/40 transition">
+              + A
+            </button>
+            <button onclick="addToMixtape(${track.id}, '${media.code}', '${escapeStr(media.artist)}', '${escapeStr(track.title)}', ${track.duration_sec}, 'B')"
+                    class="px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-300 hover:bg-sky-500 hover:text-black text-[10px] font-bold border border-sky-500/40 transition">
+              + B
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeStr(str) {
+      return (str || '').replace(/'/g, "\\'");
+    }
+
+    // --- Mixtape Builder Logic ---
+    function syncTapeLimit(val) {
+      const mainSel = document.getElementById('mix-target-media');
+      const quickSel = document.getElementById('quick-target-media');
+      if (mainSel) mainSel.value = val;
+      if (quickSel) quickSel.value = val;
+      currentMixtape.target_media = val;
+      updateMixtapeView();
+    }
+
+    function addToMixtape(trackId, mediaCode, artist, title, durSec, side) {
+      const item = { track_id: trackId, media_code: mediaCode, artist, title, duration_sec: durSec };
+      if (side === 'A') {
+        currentMixtape.items_a.push(item);
+        flashMonitor('monitor-box-a', 'border-amber-400');
+      } else {
+        currentMixtape.items_b.push(item);
+        flashMonitor('monitor-box-b', 'border-sky-400');
+      }
+      updateMixtapeView();
+      const navCount = document.getElementById('nav-mixtape-count');
+      if (navCount) {
+        navCount.classList.add('scale-125');
+        setTimeout(() => navCount.classList.remove('scale-125'), 200);
+      }
+      showToast(`Pusei ${side}: ${artist} - ${title}`, side === 'A' ? '🎛️' : '🎧');
+    }
+
+    function addAllMediaToMixtape(mediaId) {
+      const m = allMedia.find(item => item.id === mediaId);
+      if (!m || !m.tracks || m.tracks.length === 0) {
+        showToast('Šim ierakstam nav dziesmu!', '⚠️');
+        return;
+      }
+
+      const tracksA = m.tracks.filter(t => t.side === 'A');
+      const tracksB = m.tracks.filter(t => t.side === 'B');
+
+      const durA = tracksA.reduce((sum, t) => sum + t.duration_sec, 0);
+      const durB = tracksB.reduce((sum, t) => sum + t.duration_sec, 0);
+      const maxSideDur = Math.max(durA, durB);
+
+      const typeLabel = m.media_type === 'MC' ? 'kasete'
+                      : m.media_type === 'RT' ? 'lenta'
+                      : 'albums';
+      const typeIcon = m.media_type === 'MC' ? '📼'
+                     : m.media_type === 'RT' ? '🧲'
+                     : '💿';
+
+      // Ja miksteips pašlaik ir tukšs, automātiski iestatām nosaukumu un piemērotāko kasetes formātu
+      const isMixEmpty = currentMixtape.items_a.length === 0 && currentMixtape.items_b.length === 0;
+      if (isMixEmpty) {
+        const titleInput = document.getElementById('mix-title');
+        if (titleInput && !titleInput.value.trim()) {
+          titleInput.value = `${m.artist} - ${m.album}`;
+        }
+        if (maxSideDur > 45 * 60) {
+          syncTapeLimit('C120');
+        } else if (maxSideDur > 30 * 60) {
+          syncTapeLimit('C90');
+        } else if (maxSideDur > 23 * 60) {
+          syncTapeLimit('C60');
+        } else if (maxSideDur > 0) {
+          syncTapeLimit('C46');
+        }
+      }
+
+      // Pievienojam A puses dziesmas
+      tracksA.forEach(t => {
+        currentMixtape.items_a.push({
+          track_id: t.id,
+          media_code: m.code,
+          artist: m.artist,
+          title: t.title,
+          duration_sec: t.duration_sec
+        });
+      });
+
+      // Pievienojam B puses dziesmas
+      tracksB.forEach(t => {
+        currentMixtape.items_b.push({
+          track_id: t.id,
+          media_code: m.code,
+          artist: m.artist,
+          title: t.title,
+          duration_sec: t.duration_sec
+        });
+      });
+
+      updateMixtapeView();
+      if (tracksA.length > 0) flashMonitor('monitor-box-a', 'border-amber-400');
+      if (tracksB.length > 0) flashMonitor('monitor-box-b', 'border-sky-400');
+
+      const countMsg = tracksB.length > 0 
+        ? `(${tracksA.length} dz. Puse A, ${tracksB.length} dz. Puse B)`
+        : `(${tracksA.length} dziesmas)`;
+
+      showToast(`Iekopēta visa ${typeLabel}: ${m.artist} - ${m.album} ${countMsg}`, typeIcon);
+    }
+
+    function addSideToMixtape(mediaId, side) {
+      const m = allMedia.find(item => item.id === mediaId);
+      if (!m || !m.tracks) return;
+
+      const tracks = m.tracks.filter(t => t.side === side);
+      if (tracks.length === 0) {
+        showToast(`Pusē ${side} nav dziesmu!`, '⚠️');
+        return;
+      }
+
+      tracks.forEach(t => {
+        const item = {
+          track_id: t.id,
+          media_code: m.code,
+          artist: m.artist,
+          title: t.title,
+          duration_sec: t.duration_sec
+        };
+        if (side === 'A') {
+          currentMixtape.items_a.push(item);
+        } else {
+          currentMixtape.items_b.push(item);
+        }
+      });
+
+      updateMixtapeView();
+      flashMonitor(side === 'A' ? 'monitor-box-a' : 'monitor-box-b', side === 'A' ? 'border-amber-400' : 'border-sky-400');
+      showToast(`Puse ${side} pievienota (${tracks.length} dz.) no [${m.code}]`, side === 'A' ? '🎛️' : '🎧');
+    }
+
+    function showToast(msg, icon = '📼') {
+      const toast = document.getElementById('toast-notify');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      if (!toast) return;
+      toastMsg.innerText = msg;
+      toastIcon.innerText = icon;
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function flashMonitor(id, borderClass) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add(borderClass, 'scale-[1.02]');
+      setTimeout(() => {
+        el.classList.remove(borderClass, 'scale-[1.02]');
+      }, 300);
+    }
+
+    function removeFromMixtape(side, index) {
+      if (side === 'A') {
+        currentMixtape.items_a.splice(index, 1);
+      } else {
+        currentMixtape.items_b.splice(index, 1);
+      }
+      updateMixtapeView();
+    }
+
+    function updateMixtapeView() {
+      const mainSel = document.getElementById('mix-target-media');
+      const quickSel = document.getElementById('quick-target-media');
+      const targetType = (quickSel && quickSel.value) || (mainSel && mainSel.value) || 'C60';
+      if (mainSel && mainSel.value !== targetType) mainSel.value = targetType;
+      if (quickSel && quickSel.value !== targetType) quickSel.value = targetType;
+
+      const limitSec = TAPE_LIMITS[targetType] || 30 * 60;
+      const totalCount = currentMixtape.items_a.length + currentMixtape.items_b.length;
+
+      const navCount = document.getElementById('nav-mixtape-count');
+      if (navCount) navCount.innerText = totalCount;
+      const mobCount = document.getElementById('quick-total-count-mobile');
+      if (mobCount) mobCount.innerText = totalCount;
+
+      // Durations
+      const durA = currentMixtape.items_a.reduce((acc, i) => acc + i.duration_sec, 0);
+      const pctA = Math.min(100, Math.round((durA / limitSec) * 100));
+      const durB = currentMixtape.items_b.reduce((acc, i) => acc + i.duration_sec, 0);
+      const pctB = Math.min(100, Math.round((durB / limitSec) * 100));
+
+      // --- 1. Update Persistent Sticky Top Monitor ---
+      const miniTimeA = document.getElementById('mini-time-a');
+      const miniProgA = document.getElementById('mini-prog-a');
+      const miniCountA = document.getElementById('mini-count-a');
+      const miniLeftA = document.getElementById('mini-left-a');
+
+      if (miniTimeA) miniTimeA.innerText = `${fmtTime(durA)} / ${fmtTime(limitSec)}`;
+      if (miniProgA) {
+        miniProgA.style.width = `${pctA}%`;
+        miniProgA.className = durA > limitSec ? 'bg-red-500 h-2 rounded-full' : 'bg-amber-500 h-2 rounded-full';
+      }
+      if (miniCountA) miniCountA.innerText = `(${currentMixtape.items_a.length})`;
+      if (miniLeftA) {
+        if (durA <= limitSec) {
+          miniLeftA.innerText = `Atlicis ${fmtTime(limitSec - durA)}`;
+          miniLeftA.className = 'text-amber-300/90 font-medium';
+        } else {
+          miniLeftA.innerText = `⚠️ +${fmtTime(durA - limitSec)}`;
+          miniLeftA.className = 'text-red-400 font-bold animate-pulse';
+        }
+      }
+
+      const miniTimeB = document.getElementById('mini-time-b');
+      const miniProgB = document.getElementById('mini-prog-b');
+      const miniCountB = document.getElementById('mini-count-b');
+      const miniLeftB = document.getElementById('mini-left-b');
+
+      if (miniTimeB) miniTimeB.innerText = `${fmtTime(durB)} / ${fmtTime(limitSec)}`;
+      if (miniProgB) {
+        miniProgB.style.width = `${pctB}%`;
+        miniProgB.className = durB > limitSec ? 'bg-red-500 h-2 rounded-full' : 'bg-sky-500 h-2 rounded-full';
+      }
+      if (miniCountB) miniCountB.innerText = `(${currentMixtape.items_b.length})`;
+      if (miniLeftB) {
+        if (durB <= limitSec) {
+          miniLeftB.innerText = `Atlicis ${fmtTime(limitSec - durB)}`;
+          miniLeftB.className = 'text-sky-300/90 font-medium';
+        } else {
+          miniLeftB.innerText = `⚠️ +${fmtTime(durB - limitSec)}`;
+          miniLeftB.className = 'text-red-400 font-bold animate-pulse';
+        }
+      }
+
+      // --- 2. Update Full Mixtape Tab View ---
+      const labelA = document.getElementById('time-label-a');
+      if (labelA) labelA.innerText = `${fmtTime(durA)} / ${fmtTime(limitSec)}`;
+      const barA = document.getElementById('prog-bar-a');
+      if (barA) {
+        barA.style.width = `${pctA}%`;
+        barA.className = durA > limitSec ? 'bg-red-500 h-2.5 rounded-full' : 'bg-amber-500 h-2.5 rounded-full';
+      }
+      const warnA = document.getElementById('warn-a');
+      if (warnA) warnA.classList.toggle('hidden', durA <= limitSec);
+
+      const labelB = document.getElementById('time-label-b');
+      if (labelB) labelB.innerText = `${fmtTime(durB)} / ${fmtTime(limitSec)}`;
+      const barB = document.getElementById('prog-bar-b');
+      if (barB) {
+        barB.style.width = `${pctB}%`;
+        barB.className = durB > limitSec ? 'bg-red-500 h-2.5 rounded-full' : 'bg-sky-500 h-2.5 rounded-full';
+      }
+      const warnB = document.getElementById('warn-b');
+      if (warnB) warnB.classList.toggle('hidden', durB <= limitSec);
+
+      // Render tracklists on Mixtape tab
+      const containerA = document.getElementById('tracks-a');
+      if (containerA) {
+        if (currentMixtape.items_a.length === 0) {
+          containerA.innerHTML = `<div class="text-slate-600 text-center py-6">Nav pievienota neviena dziesma</div>`;
+        } else {
+          containerA.innerHTML = currentMixtape.items_a.map((item, idx) => `
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-700/50">
+              <div class="flex items-center gap-2 truncate pr-2">
+                <span class="font-bold text-amber-500 font-mono text-[10px]">${idx + 1}.</span>
+                <div class="truncate">
+                  <span class="text-white font-medium truncate">${item.artist} - ${item.title}</span>
+                  <span class="text-[10px] text-slate-400 block font-mono">Avots: [${item.media_code}]</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-slate-400 font-mono text-[11px]">${fmtTime(item.duration_sec)}</span>
+                <button onclick="removeFromMixtape('A', ${idx})" class="text-slate-500 hover:text-rose-400 px-1 font-bold">✕</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      const containerB = document.getElementById('tracks-b');
+      if (containerB) {
+        if (currentMixtape.items_b.length === 0) {
+          containerB.innerHTML = `<div class="text-slate-600 text-center py-6">Nav pievienota neviena dziesma</div>`;
+        } else {
+          containerB.innerHTML = currentMixtape.items_b.map((item, idx) => `
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-700/50">
+              <div class="flex items-center gap-2 truncate pr-2">
+                <span class="font-bold text-sky-400 font-mono text-[10px]">${idx + 1}.</span>
+                <div class="truncate">
+                  <span class="text-white font-medium truncate">${item.artist} - ${item.title}</span>
+                  <span class="text-[10px] text-slate-400 block font-mono">Avots: [${item.media_code}]</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-slate-400 font-mono text-[11px]">${fmtTime(item.duration_sec)}</span>
+                <button onclick="removeFromMixtape('B', ${idx})" class="text-slate-500 hover:text-rose-400 px-1 font-bold">✕</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function clearMixtape() {
+      if (confirm('Vai tiešām vēlies iztīrīt pašreizējo miksteipu?')) {
+        currentMixtape.items_a = [];
+        currentMixtape.items_b = [];
+        updateMixtapeView();
+      }
+    }
+
+    async function saveMixtape() {
+      const title = document.getElementById('mix-title').value.trim() || 'Mans Jaunais Miksteips';
+      const creator = document.getElementById('mix-creator').value.trim() || 'Draugs';
+      const target = document.getElementById('mix-target-media').value;
+
+      if (currentMixtape.items_a.length === 0 && currentMixtape.items_b.length === 0) {
+        alert('Lūdzu, pievieno vismaz vienu dziesmu!');
+        return;
+      }
+
+      const items = [];
+      currentMixtape.items_a.forEach((it, idx) => {
+        items.push({ track_id: it.track_id, side: 'A', position: idx + 1 });
+      });
+      currentMixtape.items_b.forEach((it, idx) => {
+        items.push({ track_id: it.track_id, side: 'B', position: idx + 1 });
+      });
+
+      try {
+        const res = await fetch('/api/mixtapes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            creator_name: creator,
+            target_media: target,
+            items
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentMixtape.items_a = [];
+          currentMixtape.items_b = [];
+          document.getElementById('mix-title').value = '';
+          updateMixtapeView();
+          if (currentUser && currentUser.role === 'admin') {
+            alert('✅ Miksteips veiksmīgi saglabāts un pievienots darbnīcas pasūtījumiem!');
+            switchTab('orders');
+          } else {
+            alert('🎉 Paldies! Tavs miksteipa pasūtījums ir nosūtīts Jānim. Viņš to sagatavos un ierakstīs kasetē!');
+            switchTab('catalog');
+          }
+        }
+      } catch (err) {
+        alert('Kļūda saglabājot miksteipu: ' + err.message);
+      }
+    }
+
+    // --- Add Media ---
+    async function fetchNextCode() {
+      const type = document.getElementById('new-type').value;
+      const res = await fetch(`/api/next-code?type=${type}`);
+      const data = await res.json();
+      document.getElementById('new-code').value = data.code;
+    }
+
+    async function submitNewMedia(e) {
+      e.preventDefault();
+      const code = document.getElementById('new-code').value;
+      const media_type = document.getElementById('new-type').value;
+      const artist = document.getElementById('new-artist').value;
+      const album = document.getElementById('new-album').value;
+      const year = parseInt(document.getElementById('new-year').value) || null;
+      const genre = document.getElementById('new-genre').value;
+      const shelf_location = document.getElementById('new-shelf').value;
+      const rawTracks = document.getElementById('new-tracks-raw').value;
+      const photo_url = document.getElementById('new-photo-url').value;
+
+      const tracks = parseTracksText(rawTracks);
+
+      try {
+        const res = await fetch('/api/media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code, media_type, artist, album, year, genre, shelf_location, photo_url, tracks
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Ieraksts [${code}] veiksmīgi saglabāts ar ${tracks.length} dziesmām!`);
+          document.getElementById('add-media-form').reset();
+          document.getElementById('new-photo-url').value = '';
+          document.getElementById('scan-preview-box').classList.add('hidden');
+          const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
+          if (manualBtnBox) manualBtnBox.classList.remove('hidden');
+          document.getElementById('scan-source-badge').classList.add('hidden');
+          document.getElementById('scan-status-alert').classList.add('hidden');
+          fetchNextCode();
+          loadMedia();
+          switchTab('catalog');
+        }
+      } catch (err) {
+        alert('Kļūda pievienojot: ' + err.message);
+      }
+    }
+
+    function parseTracksText(raw) {
+      if (!raw.trim()) return [];
+      const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let currentSide = 'A';
+      let trackNum = 1;
+      const tracks = [];
+
+      for (let line of lines) {
+        if (line.includes('---') || line.toLowerCase().startsWith('side b') || line.toLowerCase().startsWith('puse b')) {
+          currentSide = 'B';
+          trackNum = 1;
+          continue;
+        }
+
+        if (/^[bB]\d+[\.\s]/.test(line)) {
+          currentSide = 'B';
+        }
+
+        let cleanTitle = line.replace(/^[a-bA-B]?\d+[\.\-\s]+/, '').trim();
+
+        let durationSec = 210;
+        const durMatch = cleanTitle.match(/[\(\[](\d{1,2}):(\d{2})[\)\]]/);
+        if (durMatch) {
+          durationSec = parseInt(durMatch[1]) * 60 + parseInt(durMatch[2]);
+          cleanTitle = cleanTitle.replace(/[\(\[]\d{1,2}:\d{2}[\)\]]/, '').trim();
+        }
+
+        if (cleanTitle) {
+          tracks.push({
+            side: currentSide,
+            track_num: trackNum++,
+            title: cleanTitle,
+            duration_sec: durationSec
+          });
+        }
+      }
+      return tracks;
+    }
+
+    // --- Orders & Dubbing Guide ---
+    async function loadMixtapes() {
+      try {
+        const res = await fetch('/api/mixtapes');
+        const list = await res.json();
+        const container = document.getElementById('orders-list');
+
+        if (list.length === 0) {
+          container.innerHTML = `<div class="bg-analog-800 p-8 rounded-xl text-center text-slate-500 text-xs">Pagaidām nav saglabāts neviens miksteips. Izveido pirmo cilnē „Miksteips”!</div>`;
+          return;
+        }
+
+        container.innerHTML = list.map(m => `
+          <div class="bg-analog-800 rounded-xl p-4 border border-slate-700/60 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold border border-amber-500/30">
+                  ${m.target_media}
+                </span>
+                <span class="text-xs font-bold text-white">${m.title}</span>
+                <span class="text-[10px] text-slate-400 font-medium">(${m.creator_name})</span>
+              </div>
+              <p class="text-xs text-slate-400 font-mono">
+                Dziesmas: ${m.track_count} • Kopējais laiks: ${fmtTime(m.total_duration_sec)} • Izveidots: ${m.created_at.slice(0, 10)}
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openDubbingGuide(${m.id})" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black hover:bg-amber-400 transition">
+                🎛️ Ieraksta Plāns
+              </button>
+              <a href="/jcard/${m.id}" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 text-slate-200 hover:bg-slate-600 transition">
+                📄 J-Card
+              </a>
+              <button onclick="deleteMixtape(${m.id})" class="text-slate-500 hover:text-rose-400 px-2 text-xs">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function openDubbingGuide(id) {
+      try {
+        const res = await fetch(`/api/mixtapes/${id}`);
+        const m = await res.json();
+
+        document.getElementById('modal-title').innerText = `Ieraksta Plāns: ${m.title} (${m.target_media})`;
+        document.getElementById('modal-subtitle').innerText = `Pasūtītājs: ${m.creator_name} • Kopā: ${fmtTime(m.total_duration_sec)}`;
+        document.getElementById('modal-jcard-link').href = `/jcard/${m.id}`;
+
+        let html = `
+          <div class="bg-slate-900 p-3 rounded border border-slate-700 space-y-1 text-slate-300">
+            <div>📼 <strong>Kasetes Puse A:</strong> ${fmtTime(m.duration_a_sec)} / ${fmtTime(TAPE_LIMITS[m.target_media] || 1800)}</div>
+            <div>📼 <strong>Kasetes Puse B:</strong> ${fmtTime(m.duration_b_sec)} / ${fmtTime(TAPE_LIMITS[m.target_media] || 1800)}</div>
+          </div>
+          
+          <div class="space-y-3">
+            <div>
+              <div class="text-amber-400 font-bold mb-1 border-b border-amber-500/30 pb-0.5">PUSE A IERAKSTA SECĪBA:</div>
+              <div class="space-y-1.5">
+                ${m.items_a.map((it, idx) => `
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <span class="text-amber-500 font-bold">A${idx + 1}.</span> <strong>${it.artist}</strong> - ${it.track_title}
+                      <div class="text-[10px] text-slate-400">
+                        📍 Ņem: <span class="text-amber-300 font-bold">[${it.media_code}]</span> (${it.album}) • Puse ${it.orig_side}, celiņš ${it.orig_track_num} • Vieta: ${it.shelf_location}
+                      </div>
+                    </div>
+                    <span class="text-slate-400 shrink-0 ml-2">${fmtTime(it.duration_sec)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <div class="text-sky-400 font-bold mb-1 border-b border-sky-500/30 pb-0.5">PUSE B IERAKSTA SECĪBA:</div>
+              <div class="space-y-1.5">
+                ${m.items_b.map((it, idx) => `
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <span class="text-sky-400 font-bold">B${idx + 1}.</span> <strong>${it.artist}</strong> - ${it.track_title}
+                      <div class="text-[10px] text-slate-400">
+                        📍 Ņem: <span class="text-sky-300 font-bold">[${it.media_code}]</span> (${it.album}) • Puse ${it.orig_side}, celiņš ${it.orig_track_num} • Vieta: ${it.shelf_location}
+                      </div>
+                    </div>
+                    <span class="text-slate-400 shrink-0 ml-2">${fmtTime(it.duration_sec)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('modal-body').innerHTML = html;
+        document.getElementById('dubbing-modal').classList.remove('hidden');
+      } catch (err) {
+        alert('Kļūda ielādējot ieraksta plānu: ' + err.message);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('dubbing-modal').classList.add('hidden');
+    }
+
+    async function deleteMixtape(id) {
+      if (confirm('Vai tiešām vēlies dzēst šo miksteipu?')) {
+        await fetch(`/api/mixtapes/${id}`, { method: 'DELETE' });
+        loadMixtapes();
+      }
+    }
+
+    // --- Guest Passes & PIN Management (Admin Only) ---
+    async function loadGuestPasses() {
+      const container = document.getElementById('guest-passes-list');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/guest-passes');
+        if (res.status === 401 || res.status === 403) {
+          return;
+        }
+        const passes = await res.json();
+        if (!passes || passes.length === 0) {
+          container.innerHTML = `
+            <div class="p-6 rounded-xl bg-slate-900 text-center text-slate-500 text-xs border border-slate-800">
+              🔒 Pagaidām nav izveidota neviena drauga parole.<br>
+              Lapai vari piekļūt tikai tu pats ar Meistara PIN.
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = passes.map(p => `
+          <div class="p-3 sm:p-3.5 rounded-xl bg-slate-900 border ${p.is_active ? 'border-slate-700/80' : 'border-slate-800 opacity-60'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs text-white">${p.name}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${p.is_active ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
+                  ${p.is_active ? '● Aktīvs' : '○ Deaktivizēts'}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono font-bold text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                  ${p.pass_code}
+                </span>
+                <button onclick="copyToClipboard('${p.pass_code}', 'Parole nokopēta!')" class="text-[10px] text-slate-400 hover:text-amber-400 underline">
+                  Kopēt
+                </button>
+                <button onclick="sharePassWithFriend('${escapeStr(p.name)}', '${p.pass_code}')" class="text-[10px] text-sky-400 hover:text-sky-300 underline">
+                  Kopēt uzaicinājumu
+                </button>
+              </div>
+              <div class="text-[10px] text-slate-500">
+                ${p.notes ? `Piezīmes: ${p.notes} • ` : ''}Izveidots: ${p.created_at.slice(0, 16)} ${p.last_used_at ? `• Pēdējo reizi lietots: ${p.last_used_at.slice(0, 16)}` : '• Vēl nav lietots'}
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="toggleGuestPass(${p.id})" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold ${p.is_active ? 'bg-slate-800 text-amber-300 hover:bg-slate-700' : 'bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50'} border border-slate-700 transition">
+                ${p.is_active ? 'Atslēgt' : 'Aktivizēt'}
+              </button>
+              <button onclick="deleteGuestPass(${p.id}, '${escapeStr(p.name)}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-950/40 text-rose-300 hover:bg-rose-900/60 border border-rose-800/40 transition">
+                Dzēst
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="text-xs text-rose-400 py-2">Kļūda ielādējot piekļuves: ${err.message}</div>`;
+      }
+    }
+
+    function generateRandomPassCode() {
+      const words = ['rock', 'tape', 'analog', 'sound', 'retro', 'vinyl', 'groove', 'beat', 'wave', 'studio'];
+      const word = words[Math.floor(Math.random() * words.length)];
+      const num = Math.floor(100 + Math.random() * 900);
+      document.getElementById('new-guest-code').value = `${word}-${num}`;
+    }
+
+    async function handleCreateGuestPass(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-guest-name').value.trim();
+      const pass_code = document.getElementById('new-guest-code').value.trim();
+      const notes = document.getElementById('new-guest-notes').value.trim();
+
+      if (!name || !pass_code) {
+        alert('Lūdzu aizpildi drauga vārdu un paroli!');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/guest-passes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, pass_code, notes })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Kļūda saglabājot paroli');
+        }
+        document.getElementById('create-guest-pass-form').reset();
+        loadGuestPasses();
+      } catch (err) {
+        alert('Kļūda: ' + err.message);
+      }
+    }
+
+    async function toggleGuestPass(id) {
+      try {
+        const res = await fetch(`/api/guest-passes/${id}/toggle`, { method: 'POST' });
+        if (!res.ok) throw new Error('Neizdevās pārslēgt statusu');
+        loadGuestPasses();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deleteGuestPass(id, name) {
+      if (confirm(`Vai tiešām vēlies pilnībā dzēst piekļuves paroli draugam "${name}"?`)) {
+        try {
+          const res = await fetch(`/api/guest-passes/${id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('Neizdevās dzēst paroli');
+          loadGuestPasses();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+    }
+
+    function copyToClipboard(text, msg = 'Nokopēts!') {
+      navigator.clipboard.writeText(text).then(() => {
+        alert(msg);
+      }).catch(() => {
+        prompt('Nokopē šo kodu:', text);
+      });
+    }
+
+    function sharePassWithFriend(name, code) {
+      const currentUrl = window.location.origin;
+      const text = `Čau, ${name}! Šeit ir mana privātā kasešu un vinila krātuve, kur vari salikt savu miksteipu: ${currentUrl}\nTava piekļuves parole: ${code}`;
+      copyToClipboard(text, 'Uzaicinājuma teksts ar saiti un paroli nokopēts!');
+    }
+
+    async function handleChangeMasterPin(e) {
+      e.preventDefault();
+      const oldPin = document.getElementById('old-master-pin').value.trim();
+      const newPin = document.getElementById('new-master-pin').value.trim();
+      const confirmPin = document.getElementById('confirm-master-pin').value.trim();
+      const statusBox = document.getElementById('pin-change-status');
+
+      if (newPin !== confirmPin) {
+        statusBox.innerText = '⚠️ Jaunie PIN kodi nesakrīt!';
+        statusBox.className = 'text-xs font-semibold p-2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 block';
+        return;
+      }
+
+      if (newPin.length < 4) {
+        statusBox.innerText = '⚠️ Jaunajam PIN jābūt vismaz 4 simbolus garam!';
+        statusBox.className = 'text-xs font-semibold p-2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/change-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ old_pin: oldPin, new_pin: newPin })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Kļūda mainot PIN');
+        }
+        document.getElementById('change-pin-form').reset();
+        statusBox.innerText = '✅ Meistara PIN veiksmīgi nomainīts!';
+        statusBox.className = 'text-xs font-semibold p-2 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 block';
+        setTimeout(() => {
+          statusBox.classList.add('hidden');
+        }, 4000);
+      } catch (err) {
+        statusBox.innerText = `⚠️ ${err.message}`;
+        statusBox.className = 'text-xs font-semibold p-2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 block';
+      }
+    }
+  </script>
+</body>
+</html>

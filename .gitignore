@@ -1,0 +1,24 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Sensitive credentials & user data
+data/config.json
+data/vault.db
+data/photos/*
+!data/photos/.gitkeep
+!data/.gitkeep
+
+# Operating system & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
