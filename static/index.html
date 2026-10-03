@@ -34,6 +34,53 @@
       font-family: 'Courier New', Courier, monospace;
       letter-spacing: 1px;
     }
+
+    /* Skeuomorphic Norelco Cassette Jewel Case */
+    .norelco-box {
+      box-shadow: 
+        0 14px 28px -4px rgba(0, 0, 0, 0.75),
+        0 8px 12px -6px rgba(0, 0, 0, 0.6),
+        inset 0 1px 2px rgba(255, 255, 255, 0.45),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.6),
+        inset 2px 0 2px rgba(255, 255, 255, 0.2),
+        inset -2px 0 2px rgba(0, 0, 0, 0.4);
+    }
+    .norelco-glare {
+      background: linear-gradient(125deg, 
+        rgba(255, 255, 255, 0.24) 0%, 
+        rgba(255, 255, 255, 0.08) 22%, 
+        transparent 38%, 
+        rgba(255, 255, 255, 0.04) 62%, 
+        rgba(255, 255, 255, 0.16) 100%);
+      pointer-events: none;
+    }
+
+    /* Skeuomorphic Vinyl Record */
+    .vinyl-grooves {
+      background: 
+        radial-gradient(circle at center, transparent 0%, transparent 16%, #09090b 17%, #18181b 28%, #111113 45%, #222226 65%, #09090b 100%),
+        repeating-radial-gradient(circle at center, #141416 0px, #141416 2px, #252528 3px, #141416 4px);
+    }
+    .vinyl-sheen-gradient {
+      background: conic-gradient(from 40deg at 50% 50%, 
+        transparent 0deg, 
+        rgba(255,255,255,0.15) 30deg, 
+        transparent 65deg, 
+        transparent 180deg, 
+        rgba(255,255,255,0.15) 210deg, 
+        transparent 245deg);
+    }
+    .vinyl-ringwear-gradient {
+      background: radial-gradient(circle at 45% 50%, transparent 40%, rgba(255,255,255,0.06) 55%, transparent 62%);
+    }
+
+    /* Skeuomorphic Reel-to-Reel Tape Box */
+    .reel-box-shadow {
+      box-shadow: 
+        0 14px 28px rgba(0,0,0,0.85),
+        inset 0 1px 2px rgba(255,255,255,0.15),
+        inset 0 -2px 4px rgba(0,0,0,0.9);
+    }
   </style>
 </head>
 <body class="bg-analog-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-amber-600 selection:text-white">
@@ -217,12 +264,45 @@
           <button onclick="clearSearch()" id="clear-search-btn" class="hidden absolute right-3 top-3 text-slate-400 hover:text-white text-xs">✕</button>
         </div>
 
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span class="text-slate-400 font-medium whitespace-nowrap">Formāts:</span>
-          <button onclick="setFilter('ALL')" id="filter-all" class="px-3 py-1 rounded-full bg-amber-500 text-black font-bold">Visi</button>
-          <button onclick="setFilter('MC')" id="filter-mc" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">📼 Kasetes (MC)</button>
-          <button onclick="setFilter('LP')" id="filter-lp" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">💽 Vinils (LP)</button>
-          <button onclick="setFilter('RT')" id="filter-rt" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">🎚️ Lentas (RT)</button>
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-1 text-xs">
+          <div class="flex items-center gap-2 overflow-x-auto">
+            <span class="text-slate-400 font-medium whitespace-nowrap">Formāts:</span>
+            <button onclick="setFilter('ALL')" id="filter-all" class="px-3 py-1 rounded-full bg-amber-500 text-black font-bold">Visi</button>
+            <button onclick="setFilter('MC')" id="filter-mc" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">📼 Kasetes (MC)</button>
+            <button onclick="setFilter('LP')" id="filter-lp" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">💽 Vinils (LP)</button>
+            <button onclick="setFilter('RT')" id="filter-rt" class="px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:bg-slate-700">🎚️ Lentas (RT)</button>
+          </div>
+
+          <!-- View Mode Toggle: Shelf vs Full list & Cassette Style Toggle -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Cassette Style: Vāciņi vs Kasetes -->
+            <div id="cassette-style-toggle" class="flex items-center gap-1 bg-slate-900/90 p-0.5 rounded-lg border border-slate-700/80">
+              <button id="cassette-mode-cover" onclick="setCassetteGlobalDisplayMode('cover')" title="Rādīt kasešu vāciņus Norelco kārbiņās"
+                      class="px-2 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1 transition shadow">
+                <span>🎴</span>
+                <span>Vāciņi</span>
+              </button>
+              <button id="cassette-mode-tape" onclick="setCassetteGlobalDisplayMode('tape')" title="Rādīt audio kasešu korpusus ar lentu un spolēm"
+                      class="px-2 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1 transition">
+                <span>📼</span>
+                <span>Kasetes</span>
+              </button>
+            </div>
+
+            <!-- Shelf vs List -->
+            <div class="flex items-center gap-1 bg-slate-900/90 p-0.5 rounded-lg border border-slate-700/80">
+              <button id="view-mode-shelf" onclick="setCatalogViewMode('shelf')" title="Kompaktais plaukts (3 rindā)"
+                      class="px-2.5 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1.5 transition shadow">
+                <span>📚</span>
+                <span>Plaukts</span>
+              </button>
+              <button id="view-mode-full" onclick="setCatalogViewMode('full')" title="Pilnais izklātais saraksts ar visām dziesmām"
+                      class="px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+                <span>📜</span>
+                <span>Izklāts</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -231,7 +311,7 @@
         <span>Izvēlies dziesmu un pievieno savam miksteipam</span>
       </div>
 
-      <div id="media-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div id="media-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-6xl mx-auto items-start">
         <!-- Rendered by JS -->
       </div>
     </section>
@@ -686,15 +766,15 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: KASETES VĀCIŅA FOTO ================= -->
-  <div id="photo-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4" onclick="closePhotoModal()">
-    <div class="relative bg-analog-800 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl p-4 space-y-3" onclick="event.stopPropagation()">
+  <!-- ================= MODAL: KASETES VĀCIŅA & KORPUSA FOTO ================= -->
+  <div id="photo-modal" class="hidden fixed inset-0 z-[70] bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closePhotoModal()">
+    <div class="relative bg-analog-800 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl p-4 space-y-3" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-slate-700/80 pb-2.5">
-        <h3 id="photo-modal-title" class="text-sm font-bold text-white truncate pr-2">Kasetes Vāciņš</h3>
+        <h3 id="photo-modal-title" class="text-sm font-bold text-white truncate pr-2">Kasetes Attēls</h3>
         <button onclick="closePhotoModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
       </div>
-      <div class="max-h-[75vh] overflow-hidden flex items-center justify-center rounded-xl bg-black/50 border border-slate-800">
-        <img id="photo-modal-img" src="" alt="Kasetes vāciņš" class="max-h-[70vh] w-auto object-contain rounded-lg shadow-xl">
+      <div class="max-h-[75vh] overflow-hidden flex items-center justify-center rounded-xl bg-black/70 border border-slate-800 p-2">
+        <img id="photo-modal-img" src="" alt="Kasetes attēls" class="max-h-[70vh] max-w-full w-auto object-contain rounded-lg shadow-xl">
       </div>
       <div class="flex justify-between items-center text-xs pt-1">
         <span class="text-slate-400 font-mono text-[11px]">Pilna izmēra attēls</span>
@@ -705,8 +785,64 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: ATTĒLA APGRIEŠANA & KONTŪRAS (CROP TOOL) ================= -->
+  <div id="photo-crop-modal" class="hidden fixed inset-0 z-[70] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4" onclick="closeCropModal()">
+    <div class="relative bg-analog-800 border border-slate-700/80 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl p-4 sm:p-5 space-y-3.5 flex flex-col max-h-[95vh]" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✂️</span>
+          <div>
+            <h3 class="text-sm font-bold text-white leading-tight">Apgriezt Vāciņu pa Kontūrām</h3>
+            <p class="text-[11px] text-slate-400">Nogriez galda malu vai lieko fonu, lai paliek tikai tīrs nesējs</p>
+          </div>
+        </div>
+        <button onclick="closeCropModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Controls bar: Presets & Tools -->
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+          <span class="text-slate-400 text-[11px]">Formāts:</span>
+          <button onclick="setCropRatio('MC')" id="crop-ratio-mc" class="px-2.5 py-1 rounded-lg bg-amber-500 text-black font-bold text-[11px] transition shadow">🎴 Vāciņš (70:108)</button>
+          <button onclick="setCropRatio('TAPE')" id="crop-ratio-tape" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-700 text-[11px] transition">📼 Kasete (100:64)</button>
+          <button onclick="setCropRatio('LP')" id="crop-ratio-lp" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-700 text-[11px] transition">💿 Vinils (1:1)</button>
+          <button onclick="setCropRatio('RT')" id="crop-ratio-rt" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-700 text-[11px] transition">🧲 Lenta (1:1)</button>
+          <button onclick="setCropRatio('FREE')" id="crop-ratio-free" class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-700 text-[11px] transition">✂️ Brīva</button>
+        </div>
+        
+        <div class="flex items-center gap-1.5">
+          <button onclick="triggerAutoContourCrop()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 text-[11px] font-bold transition flex items-center gap-1" title="Automātiski atrast kasetes / vāciņa malas uz fona">
+            <span>🪄</span>
+            <span>Auto kontūra</span>
+          </button>
+          <button onclick="rotateCropImage(90)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[11px] transition flex items-center gap-1" title="Pagriezt par 90 grādiem">
+            <span>⟳</span>
+            <span>90°</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas container -->
+      <div id="crop-canvas-wrapper" class="relative flex-1 min-h-[280px] max-h-[58vh] bg-black/70 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden p-2 select-none">
+        <canvas id="crop-canvas" class="max-h-[54vh] max-w-full rounded shadow cursor-crosshair"></canvas>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-between pt-1 border-t border-slate-700/60">
+        <button onclick="closeCropModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition">
+          Atcelt
+        </button>
+        <button id="save-crop-btn" onclick="saveCroppedImage()" class="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5">
+          <span>✓</span>
+          <span>Apstiprināt & Apgriezt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL: ATRAŠANĀS VIETAS MAIŅA ================= -->
-  <div id="location-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLocationModal()">
+  <div id="location-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLocationModal()">
     <div class="relative bg-analog-800 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl p-5 space-y-4" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
         <div class="flex items-center gap-2.5">
@@ -748,11 +884,20 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: KASETES DETALIZĒTAIS SKATS ("TĀDS SKATS KĀ IR TAGAD") ================= -->
+  <div id="media-detail-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onclick="closeMediaDetailModal()">
+    <div id="media-detail-modal-card" class="relative max-w-2xl w-full my-auto" onclick="event.stopPropagation()">
+      <!-- Injected by openMediaDetailModal(mediaId) -->
+    </div>
+  </div>
+
   <!-- Hidden input for updating cover photo on existing catalog cassettes -->
   <input type="file" id="edit-media-cover-input" accept="image/*" capture="environment" class="hidden" onchange="handleEditMediaCoverUpload(this)">
+  <!-- Hidden input for photographing and uploading tape body photos (Side A / Side B) -->
+  <input type="file" id="tape-photo-file-input" accept="image/*" capture="environment" class="hidden" onchange="handleTapePhotoUpload(this)">
 
   <!-- Floating Toast Notification -->
-  <div id="toast-notify" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none bg-slate-900/95 border border-amber-500/60 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold backdrop-blur max-w-sm">
+  <div id="toast-notify" class="fixed bottom-5 right-5 z-[80] transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none bg-slate-900/95 border border-amber-500/60 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold backdrop-blur max-w-sm">
     <span id="toast-icon" class="text-xl">📼</span>
     <span id="toast-msg" class="leading-tight">Kopēts!</span>
   </div>
@@ -1096,11 +1241,16 @@
         document.getElementById('new-photo-url').value = data.photo_url;
         document.getElementById('scan-photo-preview').src = data.photo_url;
         document.getElementById('scan-photo-title').innerText = '📷 Kasetes vāciņa foto pievienots';
-        document.getElementById('scan-photo-subtitle').innerText = 'Attēls veiksmīgi nomainīts uz vāciņa foto!';
+        document.getElementById('scan-photo-subtitle').innerText = 'Attēls veiksmīgi pievienots!';
         document.getElementById('scan-preview-box').classList.remove('hidden');
         const manualBtnBox = document.getElementById('manual-add-photo-btn-box');
         if (manualBtnBox) manualBtnBox.classList.add('hidden');
-        showToast('Vāciņa foto veiksmīgi nomainīts!', '📷');
+
+        // Automatically open Crop Modal so user can trim background table
+        openCropModal(data.photo_url, null, 'MC', (croppedUrl) => {
+          document.getElementById('new-photo-url').value = croppedUrl;
+          document.getElementById('scan-photo-preview').src = croppedUrl;
+        });
       } catch (err) {
         alert('Kļūda augšupielādējot foto: ' + err.message);
       } finally {
@@ -1118,7 +1268,11 @@
 
     function triggerChangeCoverPhoto(mediaId) {
       window._currentEditMediaId = mediaId;
-      document.getElementById('edit-media-cover-input').click();
+      const input = document.getElementById('edit-media-cover-input');
+      if (input) {
+        input.value = '';
+        input.click();
+      }
     }
 
     async function handleEditMediaCoverUpload(input) {
@@ -1126,6 +1280,7 @@
       const file = input.files[0];
       const mediaId = window._currentEditMediaId;
       try {
+        showToast('Augšupielādē vāciņu...', '⏳');
         const compressed = await compressImage(file);
         const formData = new FormData();
         formData.append('file', compressed);
@@ -1141,14 +1296,525 @@
         if (m) {
           m.photo_url = data.photo_url;
           renderCatalog();
+          if (currentDetailMediaId === mediaId) {
+            openMediaDetailModal(mediaId);
+          }
         }
-        showToast('Kasetes vāciņš veiksmīgi atjaunināts!', '📷');
+        
+        // Open Crop Modal immediately to trim edges!
+        openCropModal(data.photo_url, mediaId, m ? m.media_type : 'MC', (newUrl) => {
+          if (m) {
+            m.photo_url = newUrl;
+            renderCatalog();
+            if (currentDetailMediaId === mediaId) {
+              openMediaDetailModal(mediaId);
+            }
+          }
+        }, 'cover');
       } catch (err) {
         alert('Kļūda: ' + err.message);
       } finally {
         input.value = '';
         window._currentEditMediaId = null;
       }
+    }
+
+    function triggerUploadTapePhoto(mediaId, side = 'A') {
+      window._currentTapeMediaId = mediaId;
+      window._currentTapeSide = side.toUpperCase();
+      const input = document.getElementById('tape-photo-file-input');
+      if (input) {
+        input.value = '';
+        input.click();
+      }
+    }
+
+    async function handleTapePhotoUpload(input) {
+      if (!input.files || input.files.length === 0 || !window._currentTapeMediaId) return;
+      const file = input.files[0];
+      const mediaId = window._currentTapeMediaId;
+      const side = (window._currentTapeSide || 'A').toUpperCase();
+      try {
+        showToast(`Augšupielādē Puses ${side} foto...`, '⏳');
+        const compressed = await compressImage(file);
+        const formData = new FormData();
+        formData.append('file', compressed);
+        formData.append('side', side);
+
+        const res = await fetch(`/api/media/${mediaId}/tape-photo`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Kļūda saglabājot kasetes foto');
+
+        const m = allMedia.find(item => item.id === mediaId);
+        if (m) {
+          if (side === 'B') m.tape_photo_b = data.photo_url;
+          else m.tape_photo_a = data.photo_url;
+        }
+
+        if (currentDetailMediaId === mediaId) {
+          openMediaDetailModal(mediaId);
+        }
+        renderCatalog();
+        showToast(`Puses ${side} foto saglabāts!`, '📷');
+
+        // Automatically open crop modal with horizontal tape ratio (100:64)
+        openCropModal(data.photo_url, mediaId, 'TAPE', (newUrl) => {
+          if (m) {
+            if (side === 'B') m.tape_photo_b = newUrl;
+            else m.tape_photo_a = newUrl;
+            if (currentDetailMediaId === mediaId) {
+              openMediaDetailModal(mediaId);
+            }
+            renderCatalog();
+          }
+        }, side === 'B' ? 'tape_b' : 'tape_a');
+      } catch (err) {
+        alert('Kļūda: ' + err.message);
+      } finally {
+        input.value = '';
+        window._currentTapeMediaId = null;
+        window._currentTapeSide = null;
+      }
+    }
+
+    function triggerCropTapePhoto(mediaId, side = 'A') {
+      const m = allMedia.find(x => x.id === mediaId);
+      if (!m) return;
+      const sideClean = side.toUpperCase();
+      const url = (sideClean === 'B' ? m.tape_photo_b : m.tape_photo_a);
+      if (!url) {
+        alert(`Pusei ${sideClean} vēl nav pievienots foto. Vispirms nofotografē ar 📷!`);
+        return;
+      }
+      openCropModal(url, mediaId, 'TAPE', (newUrl) => {
+        if (sideClean === 'B') m.tape_photo_b = newUrl;
+        else m.tape_photo_a = newUrl;
+        if (currentDetailMediaId === mediaId) {
+          openMediaDetailModal(mediaId);
+        }
+        renderCatalog();
+      }, sideClean === 'B' ? 'tape_b' : 'tape_a');
+    }
+
+    async function deleteTapePhoto(mediaId, side = 'A') {
+      const sideClean = side.toUpperCase();
+      if (!confirm(`Vai tiešām vēlies dzēst kasetes Puses ${sideClean} foto?`)) return;
+      try {
+        const res = await fetch(`/api/media/${mediaId}/tape-photo?side=${sideClean}`, {
+          method: 'DELETE'
+        });
+        if (!res.ok) throw new Error('Kļūda dzēšot foto');
+        const m = allMedia.find(x => x.id === mediaId);
+        if (m) {
+          if (sideClean === 'B') m.tape_photo_b = null;
+          else m.tape_photo_a = null;
+        }
+        if (currentDetailMediaId === mediaId) {
+          openMediaDetailModal(mediaId);
+        }
+        renderCatalog();
+        showToast(`Puses ${sideClean} foto dzēsts`, '🗑️');
+      } catch (e) {
+        alert('Kļūda: ' + e.message);
+      }
+    }
+
+    // ==========================================
+    // INTERACTIVE IMAGE CROP & CONTOUR TOOL
+    // ==========================================
+    let cropState = {
+      mediaId: null,
+      photoUrl: null,
+      img: null,
+      rotation: 0,
+      aspectRatio: 70 / 108, // MC default ~ 1:1.54 portrait
+      ratioType: 'MC',
+      box: { x: 0.05, y: 0.05, w: 0.9, h: 0.9 }, // Normalized 0..1
+      activeHandle: null,
+      dragStart: null,
+      onSaveCallback: null,
+      targetSlot: 'cover'
+    };
+
+    function openCropModal(photoUrl, mediaId = null, mediaType = 'MC', callback = null, targetSlot = 'cover') {
+      if (!photoUrl) return;
+      cropState.photoUrl = photoUrl;
+      cropState.mediaId = mediaId;
+      cropState.rotation = 0;
+      cropState.onSaveCallback = callback;
+      cropState.targetSlot = targetSlot;
+      setCropRatio(mediaType || 'MC', false);
+
+      const modal = document.getElementById('photo-crop-modal');
+      modal.classList.remove('hidden');
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        cropState.img = img;
+        initCropBox(img.width, img.height);
+        setupCropCanvasEvents();
+        renderCropCanvas();
+        // Automatically attempt auto-contour detection on open!
+        triggerAutoContourCrop();
+      };
+      img.src = photoUrl;
+    }
+
+    function closeCropModal() {
+      document.getElementById('photo-crop-modal').classList.add('hidden');
+      cropState.img = null;
+      cropState.activeHandle = null;
+    }
+
+    function setCropRatio(type, rerender = true) {
+      cropState.ratioType = type;
+      if (type === 'MC') cropState.aspectRatio = 70 / 108; // 1:1.54 portrait cassette
+      else if (type === 'TAPE') cropState.aspectRatio = 100 / 64; // 1.56:1 cassette tape horizontal
+      else if (type === 'LP') cropState.aspectRatio = 1.0; // 1:1 vinyl
+      else if (type === 'RT') cropState.aspectRatio = 1.0; // 1:1 reel box
+      else cropState.aspectRatio = null; // Free
+
+      ['mc', 'tape', 'lp', 'rt', 'free'].forEach(t => {
+        const btn = document.getElementById(`crop-ratio-${t}`);
+        if (btn) {
+          if (t.toUpperCase() === type.toUpperCase()) {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-amber-500 text-black font-bold text-[11px] transition shadow';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-700 text-[11px] transition';
+          }
+        }
+      });
+
+      if (rerender && cropState.img) {
+        initCropBox(cropState.img.width, cropState.img.height);
+        renderCropCanvas();
+      }
+    }
+
+    function initCropBox(imgW, imgH) {
+      const isRotated = (cropState.rotation === 90 || cropState.rotation === 270);
+      const w = isRotated ? imgH : imgW;
+      const h = isRotated ? imgW : imgH;
+
+      if (!cropState.aspectRatio) {
+        cropState.box = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 };
+        return;
+      }
+
+      const targetRatio = cropState.aspectRatio; // w / h
+      const currentRatio = w / h;
+
+      let boxW = 0.88;
+      let boxH = 0.88;
+
+      if (targetRatio < currentRatio) {
+        boxW = boxH * (targetRatio / currentRatio);
+      } else {
+        boxH = boxW * (currentRatio / targetRatio);
+      }
+
+      boxW = Math.min(0.95, boxW);
+      boxH = Math.min(0.95, boxH);
+
+      cropState.box = {
+        x: (1 - boxW) / 2,
+        y: (1 - boxH) / 2,
+        w: boxW,
+        h: boxH
+      };
+    }
+
+    function rotateCropImage(deg = 90) {
+      cropState.rotation = (cropState.rotation + deg) % 360;
+      if (cropState.img) {
+        initCropBox(cropState.img.width, cropState.img.height);
+        renderCropCanvas();
+      }
+    }
+
+    async function triggerAutoContourCrop() {
+      if (!cropState.photoUrl) return;
+      try {
+        const res = await fetch('/api/auto-contour', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            photo_url: cropState.photoUrl,
+            aspect_ratio: cropState.aspectRatio
+          })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.box && data.image_size) {
+          const origW = data.image_size.w;
+          const origH = data.image_size.h;
+
+          let normX = data.box.x / origW;
+          let normY = data.box.y / origH;
+          let normW = data.box.w / origW;
+          let normH = data.box.h / origH;
+
+          normX = Math.max(0, Math.min(0.9, normX));
+          normY = Math.max(0, Math.min(0.9, normY));
+          normW = Math.max(0.1, Math.min(1 - normX, normW));
+          normH = Math.max(0.1, Math.min(1 - normY, normH));
+
+          cropState.box = { x: normX, y: normY, w: normW, h: normH };
+          renderCropCanvas();
+          showToast('🪄 Malas un kontūra automātiski noteiktas!', '🪄');
+        }
+      } catch (e) {
+        console.warn('Auto contour error:', e);
+      }
+    }
+
+    function renderCropCanvas() {
+      const canvas = document.getElementById('crop-canvas');
+      if (!canvas || !cropState.img) return;
+
+      const img = cropState.img;
+      const isRotated = (cropState.rotation === 90 || cropState.rotation === 270);
+      const imgW = isRotated ? img.height : img.width;
+      const imgH = isRotated ? img.width : img.height;
+
+      const maxW = 560;
+      const maxH = 380;
+      const scale = Math.min(maxW / imgW, maxH / imgH, 1.0);
+
+      canvas.width = Math.round(imgW * scale);
+      canvas.height = Math.round(imgH * scale);
+      const ctx = canvas.getContext('2d');
+
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((cropState.rotation * Math.PI) / 180);
+      const drawW = (isRotated ? canvas.height : canvas.width);
+      const drawH = (isRotated ? canvas.width : canvas.height);
+      ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+      ctx.restore();
+
+      const b = cropState.box;
+      const cx = b.x * canvas.width;
+      const cy = b.y * canvas.height;
+      const cw = b.w * canvas.width;
+      const ch = b.h * canvas.height;
+
+      // Dark overlay
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width, canvas.height);
+      ctx.rect(cx, cy, cw, ch);
+      ctx.fill('evenodd');
+
+      // Crop border
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx, cy, cw, ch);
+
+      // Rule of thirds guide lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx + cw / 3, cy);
+      ctx.lineTo(cx + cw / 3, cy + ch);
+      ctx.moveTo(cx + 2 * cw / 3, cy);
+      ctx.lineTo(cx + 2 * cw / 3, cy + ch);
+      ctx.moveTo(cx, cy + ch / 3);
+      ctx.lineTo(cx + cw, cy + ch / 3);
+      ctx.moveTo(cx, cy + 2 * ch / 3);
+      ctx.lineTo(cx + cw, cy + 2 * ch / 3);
+      ctx.stroke();
+
+      // Corner handles
+      const handleSize = 10;
+      ctx.fillStyle = '#f59e0b';
+      const corners = [
+        [cx, cy],
+        [cx + cw, cy],
+        [cx, cy + ch],
+        [cx + cw, cy + ch]
+      ];
+      corners.forEach(([hx, hy]) => {
+        ctx.beginPath();
+        ctx.arc(hx, hy, handleSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+    }
+
+    function setupCropCanvasEvents() {
+      const canvas = document.getElementById('crop-canvas');
+      if (!canvas || canvas._eventsAttached) return;
+      canvas._eventsAttached = true;
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) / canvas.width,
+          y: (clientY - rect.top) / canvas.height
+        };
+      }
+
+      function getHandle(normX, normY) {
+        const b = cropState.box;
+        const tol = 0.08;
+        if (Math.abs(normX - b.x) < tol && Math.abs(normY - b.y) < tol) return 'nw';
+        if (Math.abs(normX - (b.x + b.w)) < tol && Math.abs(normY - b.y) < tol) return 'ne';
+        if (Math.abs(normX - b.x) < tol && Math.abs(normY - (b.y + b.h)) < tol) return 'sw';
+        if (Math.abs(normX - (b.x + b.w)) < tol && Math.abs(normY - (b.y + b.h)) < tol) return 'se';
+        if (normX >= b.x && normX <= b.x + b.w && normY >= b.y && normY <= b.y + b.h) return 'move';
+        return null;
+      }
+
+      const onStart = (e) => {
+        const p = getPos(e);
+        cropState.activeHandle = getHandle(p.x, p.y);
+        cropState.dragStart = p;
+        if (cropState.activeHandle) {
+          e.preventDefault();
+        }
+      };
+
+      const onMove = (e) => {
+        const p = getPos(e);
+        if (!cropState.activeHandle || !cropState.dragStart) {
+          const h = getHandle(p.x, p.y);
+          if (h === 'move') canvas.style.cursor = 'move';
+          else if (h === 'nw' || h === 'se') canvas.style.cursor = 'nwse-resize';
+          else if (h === 'ne' || h === 'sw') canvas.style.cursor = 'nesw-resize';
+          else canvas.style.cursor = 'crosshair';
+          return;
+        }
+
+        e.preventDefault();
+        const dx = p.x - cropState.dragStart.x;
+        const dy = p.y - cropState.dragStart.y;
+        cropState.dragStart = p;
+        const b = cropState.box;
+
+        if (cropState.activeHandle === 'move') {
+          b.x = Math.max(0, Math.min(1 - b.w, b.x + dx));
+          b.y = Math.max(0, Math.min(1 - b.h, b.y + dy));
+        } else if (cropState.activeHandle === 'se') {
+          let newW = Math.max(0.1, Math.min(1 - b.x, b.w + dx));
+          let newH = Math.max(0.1, Math.min(1 - b.y, b.h + dy));
+          if (cropState.aspectRatio) {
+            newH = newW / cropState.aspectRatio;
+          }
+          if (b.x + newW <= 1 && b.y + newH <= 1) {
+            b.w = newW;
+            b.h = newH;
+          }
+        } else if (cropState.activeHandle === 'nw') {
+          let newX = Math.max(0, Math.min(b.x + b.w - 0.1, b.x + dx));
+          let newY = Math.max(0, Math.min(b.y + b.h - 0.1, b.y + dy));
+          b.w += (b.x - newX);
+          b.h += (b.y - newY);
+          b.x = newX;
+          b.y = newY;
+        }
+        renderCropCanvas();
+      };
+
+      const onEnd = () => {
+        cropState.activeHandle = null;
+        cropState.dragStart = null;
+      };
+
+      canvas.addEventListener('mousedown', onStart);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      canvas.addEventListener('touchstart', onStart, { passive: false });
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    }
+
+    async function saveCroppedImage() {
+      if (!cropState.img || !cropState.photoUrl) return;
+      const saveBtn = document.getElementById('save-crop-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>⏳</span><span>Apgriež...</span>';
+
+      try {
+        const img = cropState.img;
+        const isRotated = (cropState.rotation === 90 || cropState.rotation === 270);
+        const w = isRotated ? img.height : img.width;
+        const h = isRotated ? img.width : img.height;
+
+        const pixelBox = [
+          Math.round(cropState.box.x * w),
+          Math.round(cropState.box.y * h),
+          Math.round(cropState.box.w * w),
+          Math.round(cropState.box.h * h)
+        ];
+
+        const res = await fetch('/api/crop-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            photo_url: cropState.photoUrl,
+            box: pixelBox,
+            rotation: cropState.rotation,
+            media_id: cropState.mediaId,
+            target_slot: cropState.targetSlot || 'cover'
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || 'Apgriešanas kļūda');
+        }
+
+        const data = await res.json();
+
+        if (cropState.mediaId) {
+          const m = allMedia.find(item => item.id === cropState.mediaId);
+          if (m) {
+            if (cropState.targetSlot === 'tape_a') m.tape_photo_a = data.photo_url;
+            else if (cropState.targetSlot === 'tape_b') m.tape_photo_b = data.photo_url;
+            else m.photo_url = data.photo_url;
+            renderCatalog();
+            if (currentDetailMediaId === cropState.mediaId) {
+              openMediaDetailModal(cropState.mediaId);
+            }
+          }
+        }
+
+        if (cropState.onSaveCallback) {
+          cropState.onSaveCallback(data.photo_url);
+        }
+
+        closeCropModal();
+        showToast('Attēls veiksmīgi apgriezts!', '✂️');
+      } catch (err) {
+        alert('Kļūda apgriežot: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<span>✓</span><span>Apstiprināt & Apgriezt</span>';
+      }
+    }
+
+    function triggerCropCoverPhoto(mediaId) {
+      const m = allMedia.find(x => x.id === mediaId);
+      if (!m || !m.photo_url) {
+        alert('Šim ierakstam vēl nav pievienots vāciņš. Vispirms nofotografē ar 📷!');
+        return;
+      }
+      openCropModal(m.photo_url, mediaId, m.media_type || 'MC', (newUrl) => {
+        m.photo_url = newUrl;
+        if (currentDetailMediaId === mediaId) {
+          openMediaDetailModal(mediaId);
+        }
+        renderCatalog();
+      }, 'cover');
     }
 
     function openPhotoModal(url, title) {
@@ -1238,10 +1904,44 @@
       currentEditLocationMediaId = null;
     }
 
+    // --- Media Detail View Modal ("Tāds skats kā ir tagad") ---
+    let currentDetailMediaId = null;
+
+    function openMediaDetailModal(mediaId) {
+      const m = allMedia.find(x => x.id === mediaId);
+      if (!m) return;
+      currentDetailMediaId = mediaId;
+      const container = document.getElementById('media-detail-modal-card');
+      container.innerHTML = renderFullMediaCard(m, true);
+      document.getElementById('media-detail-modal').classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeMediaDetailModal() {
+      document.getElementById('media-detail-modal').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+      currentDetailMediaId = null;
+    }
+
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closeLocationModal();
-        closePhotoModal();
+        if (!document.getElementById('photo-modal').classList.contains('hidden')) {
+          closePhotoModal();
+        } else if (!document.getElementById('photo-crop-modal').classList.contains('hidden')) {
+          closeCropModal();
+        } else if (!document.getElementById('location-modal').classList.contains('hidden')) {
+          closeLocationModal();
+        } else if (!document.getElementById('media-detail-modal').classList.contains('hidden')) {
+          closeMediaDetailModal();
+        } else if (!document.getElementById('dubbing-modal').classList.contains('hidden')) {
+          closeModal();
+        }
+      } else if (e.key === 'ArrowLeft' && currentDetailMediaId && !document.getElementById('media-detail-modal').classList.contains('hidden') && document.getElementById('photo-modal').classList.contains('hidden') && document.getElementById('photo-crop-modal').classList.contains('hidden')) {
+        const idx = allMedia.findIndex(x => x.id === currentDetailMediaId);
+        if (idx > 0) openMediaDetailModal(allMedia[idx - 1].id);
+      } else if (e.key === 'ArrowRight' && currentDetailMediaId && !document.getElementById('media-detail-modal').classList.contains('hidden') && document.getElementById('photo-modal').classList.contains('hidden') && document.getElementById('photo-crop-modal').classList.contains('hidden')) {
+        const idx = allMedia.findIndex(x => x.id === currentDetailMediaId);
+        if (idx < allMedia.length - 1) openMediaDetailModal(allMedia[idx + 1].id);
       }
     });
 
@@ -1271,10 +1971,14 @@
           }
         }
 
-        // Update badge in DOM
+        // Update badges in DOM and modal
         const badge = document.getElementById(`loc-badge-${currentEditLocationMediaId}`);
         if (badge) {
           badge.innerText = newLoc;
+        }
+        const modalBadge = document.getElementById(`modal-loc-badge-${currentEditLocationMediaId}`);
+        if (modalBadge) {
+          modalBadge.innerText = newLoc;
         }
 
         closeLocationModal();
@@ -1468,9 +2172,863 @@
       loadMedia(document.getElementById('search-input').value);
     }
 
+    let catalogViewMode = localStorage.getItem('catalogViewMode') || 'shelf';
+
+    function setCatalogViewMode(mode) {
+      catalogViewMode = mode;
+      localStorage.setItem('catalogViewMode', mode);
+      updateViewModeButtons();
+      renderCatalog();
+    }
+
+    let cassetteGlobalDisplayMode = localStorage.getItem('cassetteGlobalDisplayMode') || 'cover';
+
+    function setCassetteGlobalDisplayMode(mode) {
+      cassetteGlobalDisplayMode = mode;
+      localStorage.setItem('cassetteGlobalDisplayMode', mode);
+      window._mediaViewMode = {};
+      updateCassetteDisplayModeButtons();
+      renderCatalog();
+    }
+
+    function updateCassetteDisplayModeButtons() {
+      const coverBtn = document.getElementById('cassette-mode-cover');
+      const tapeBtn = document.getElementById('cassette-mode-tape');
+      const toggleBox = document.getElementById('cassette-style-toggle');
+      if (toggleBox) {
+        toggleBox.style.display = (catalogViewMode === 'shelf') ? 'flex' : 'none';
+      }
+      if (coverBtn && tapeBtn) {
+        if (cassetteGlobalDisplayMode === 'cover') {
+          coverBtn.className = 'px-2 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1 transition shadow';
+          tapeBtn.className = 'px-2 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1 transition';
+        } else {
+          tapeBtn.className = 'px-2 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1 transition shadow';
+          coverBtn.className = 'px-2 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1 transition';
+        }
+      }
+    }
+
+    function updateViewModeButtons() {
+      const shelfBtn = document.getElementById('view-mode-shelf');
+      const fullBtn = document.getElementById('view-mode-full');
+      updateCassetteDisplayModeButtons();
+      if (shelfBtn && fullBtn) {
+        if (catalogViewMode === 'shelf') {
+          shelfBtn.className = 'px-2.5 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1.5 transition shadow';
+          fullBtn.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5 transition';
+        } else {
+          fullBtn.className = 'px-2.5 py-1 rounded text-xs font-bold bg-amber-500 text-black flex items-center gap-1.5 transition shadow';
+          shelfBtn.className = 'px-2.5 py-1 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5 transition';
+        }
+      }
+    }
+
+    // Toggle between Cover (J-Card in Case) and Tape (Audio Cassette Shell)
+    window._mediaViewMode = window._mediaViewMode || {};
+    function toggleMediaCardView(mediaId) {
+      const curMode = (window._mediaViewMode && window._mediaViewMode[mediaId]) || cassetteGlobalDisplayMode;
+      window._mediaViewMode[mediaId] = (curMode === 'tape' ? 'cover' : 'tape');
+      renderCatalog();
+    }
+
+    function renderCassetteShelfCard(m, totalDur, badgeColor, matchingTracks) {
+      const viewMode = (window._mediaViewMode && window._mediaViewMode[m.id]) || cassetteGlobalDisplayMode;
+
+      if (viewMode === 'tape' && m.tape_photo_a) {
+        const tapeSide = (window._tapeShelfSide && window._tapeShelfSide[m.id]) || 'A';
+        const tapePhoto = (tapeSide === 'B' && m.tape_photo_b) ? m.tape_photo_b : m.tape_photo_a;
+
+        return `
+          <div class="relative flex flex-col justify-between group cursor-pointer select-none transition-all duration-300 hover:-translate-y-1 w-full max-w-[320px] mx-auto"
+               onclick="openMediaDetailModal(${m.id})">
+
+            <!-- Authentic Physical Audio Cassette Tape Body (Real Photo, 100mm x 64mm ratio) -->
+            <div class="relative rounded-2xl overflow-hidden bg-slate-950 border-2 border-stone-600 shadow-2xl transition group-hover:border-amber-500/60 aspect-[100/64] p-1.5 flex flex-col justify-between">
+              
+              <div class="relative w-full h-full rounded-xl overflow-hidden bg-black flex items-center justify-center">
+                <img src="${tapePhoto}" alt="${escapeStr(m.album)}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30 pointer-events-none"></div>
+
+                <!-- Top Bar: Code and Side -->
+                <div class="absolute top-2 left-2 flex items-center gap-1.5 z-20 pointer-events-none">
+                  <span class="tape-badge px-2 py-0.5 rounded text-[10px] font-bold ${badgeColor} backdrop-blur-md shadow">
+                    ${m.code}
+                  </span>
+                  <span class="bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-amber-300 border border-white/20 shadow">
+                    PUSE ${tapeSide}
+                  </span>
+                </div>
+
+                <!-- Top Right: Flip back to Cover or switch Side A/B -->
+                <div class="absolute top-2 right-2 z-20 flex items-center gap-1" onclick="event.stopPropagation()">
+                  ${m.tape_photo_b ? `
+                    <button onclick="window._tapeShelfSide = window._tapeShelfSide || {}; window._tapeShelfSide[${m.id}] = (window._tapeShelfSide[${m.id}] === 'B' ? 'A' : 'B'); renderCatalog();"
+                            title="Apgriezt kaseti uz otru pusi"
+                            class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500 text-black hover:bg-amber-400 transition shadow">
+                      ➔ ${tapeSide === 'A' ? 'Puse B' : 'Puse A'}
+                    </button>
+                  ` : ''}
+                  <button onclick="toggleMediaCardView(${m.id})" title="Pārslēgt uz kārbiņas vāciņu"
+                          class="text-[9px] font-bold px-2 py-0.5 rounded bg-black/80 hover:bg-black text-amber-300 border border-white/25 backdrop-blur-md shadow flex items-center gap-1 transition">
+                    <span>🎴</span>
+                    <span class="hidden sm:inline">Vāciņš</span>
+                  </button>
+                  ${currentUser && currentUser.role === 'admin' ? `
+                    <button onclick="triggerCropTapePhoto(${m.id}, '${tapeSide}')" title="Apgriezt kaseti pa kontūrām"
+                            class="text-[10px] text-slate-300 hover:text-amber-400 bg-black/80 p-1 rounded border border-white/25 backdrop-blur-md transition">✂️</button>
+                    <button onclick="triggerUploadTapePhoto(${m.id}, '${tapeSide}')" title="Nomainīt foto"
+                            class="text-[10px] text-slate-300 hover:text-amber-400 bg-black/80 p-1 rounded border border-white/25 backdrop-blur-md transition">📷</button>
+                  ` : ''}
+                </div>
+
+                <!-- Bottom Tape Title -->
+                <div class="absolute inset-x-2 bottom-2 pointer-events-none">
+                  <div class="text-xs font-bold text-white truncate drop-shadow-md">${m.artist}</div>
+                  <div class="text-[11px] text-amber-300 font-medium truncate drop-shadow-md">${m.album}</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Quick Action Buttons Below Tape -->
+            <div class="mt-2.5 flex items-center gap-1.5" onclick="event.stopPropagation()">
+              <button onclick="addAllMediaToMixtape(${m.id})"
+                      title="Iekopēt visas ${m.tracks.length} dziesmas miksteipā"
+                      class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 hover:border-transparent transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+                <span>📼</span>
+                <span class="truncate">Kopēt visu uz miksteipu</span>
+              </button>
+              <button onclick="openMediaDetailModal(${m.id})"
+                      title="Atvērt kasetes dziesmu sarakstu"
+                      class="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1">
+                <span>📜</span>
+              </button>
+            </div>
+
+            ${matchingTracks.length > 0 ? `
+              <div class="mt-1.5 text-[11px] text-amber-300 font-semibold bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/30 truncate">
+                🎯 Sakrīt: "${matchingTracks[0].title}"
+              </div>
+            ` : ''}
+
+          </div>
+        `;
+      }
+
+      // Track preview teaser (first 3 tracks)
+      const previewTracksText = m.tracks.slice(0, 3).map((t, idx) => `${idx + 1}. ${escapeStr(t.title)}`).join(' • ') + (m.tracks.length > 3 ? '...' : '');
+
+      // DEFAULT: AUTHENTIC VERTICAL NORELCO JEWEL CASE (70mm x 108mm PORTRAIT)
+      return `
+        <div class="relative flex flex-col justify-between group cursor-pointer select-none transition-all duration-300 hover:-translate-y-1 w-full max-w-[320px] mx-auto"
+             onclick="openMediaDetailModal(${m.id})">
+
+          <!-- Outer Norelco Clear Acrylic Jewel Box (Clean, flush edges - NO protruding container hinges!) -->
+          <div class="norelco-box relative rounded-xl overflow-hidden bg-slate-950/60 border border-white/25 shadow-2xl backdrop-blur-xs transition-all duration-300 group-hover:border-amber-400/60 group-hover:shadow-amber-500/20 aspect-[70/108] p-1.5 flex flex-col">
+
+            <!-- Subtle Acrylic Glass Glare Reflection -->
+            <div class="norelco-glare pointer-events-none absolute inset-0 rounded-xl z-30"></div>
+
+            <!-- Sleek Floating Glass Badges (Top Left: Code, Top Right: Quick Actions) -->
+            <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between z-30 pointer-events-none" onclick="event.stopPropagation()">
+              <span class="pointer-events-auto tape-badge px-2 py-0.5 rounded text-[10px] font-bold ${badgeColor} backdrop-blur-md shadow">
+                ${m.code}
+              </span>
+
+              <div class="pointer-events-auto flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                ${m.tape_photo_a ? `
+                  <button onclick="toggleMediaCardView(${m.id})" title="Pārslēgt starp vāciņu un kasetes korpusu"
+                          class="text-[9px] font-bold px-2 py-0.5 rounded bg-black/70 hover:bg-black text-amber-300 border border-white/20 backdrop-blur-md shadow flex items-center gap-1 transition">
+                    <span>📼</span>
+                    <span class="hidden sm:inline">Kasete</span>
+                  </button>
+                ` : ''}
+                ${currentUser && currentUser.role === 'admin' ? `
+                  <button onclick="triggerCropCoverPhoto(${m.id})" title="Apgriezt vāciņu pa kontūrām"
+                          class="text-[10px] text-slate-300 hover:text-amber-400 bg-black/70 p-1 rounded border border-white/20 backdrop-blur-md transition">✂️</button>
+                  <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt vāciņu"
+                          class="text-[10px] text-slate-300 hover:text-amber-400 bg-black/70 p-1 rounded border border-white/20 backdrop-blur-md transition">📷</button>
+                  <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst"
+                          class="text-[10px] text-slate-300 hover:text-rose-400 bg-black/70 p-1 rounded border border-white/20 backdrop-blur-md transition">🗑️</button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Inside: The Vertical Paper J-Card Insert (Snugly fitting inside the acrylic casing) -->
+            <div class="relative w-full h-full rounded-lg overflow-hidden bg-slate-900 shadow-inner flex flex-col z-10">
+              ${m.photo_url ? `
+                <img src="${m.photo_url}" alt="${escapeStr(m.album)}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500">
+              ` : `
+                <!-- Authentic Synthesized J-Card with Vertical Spine & Spools -->
+                <div class="w-full h-full flex bg-stone-900">
+                  <!-- Left Vertical Spine -->
+                  <div class="w-9 bg-stone-100 text-stone-900 border-r border-stone-300 flex flex-col justify-between items-center py-2 select-none">
+                    <span class="font-mono text-[8px] font-black text-amber-900">${m.code}</span>
+                    <div class="[writing-mode:vertical-rl] rotate-180 text-[9px] font-bold tracking-tight text-stone-900 truncate max-h-[140px]">
+                      ${m.artist} • ${m.album}
+                    </div>
+                    <span class="font-mono text-[7px] text-stone-500">STEREO</span>
+                  </div>
+
+                  <!-- Right J-Card Face -->
+                  <div class="flex-1 bg-gradient-to-b from-stone-800 via-stone-900 to-stone-950 p-2.5 flex flex-col justify-between items-center text-center">
+                    <div class="w-full bg-stone-100/90 rounded p-1.5 text-stone-900 shadow-sm border border-stone-300 mt-1">
+                      <div class="text-[8px] font-mono font-bold text-amber-700 pb-0.5">TYPE I NORMAL BIAS</div>
+                      <div class="text-xs font-bold truncate text-slate-900">${m.artist}</div>
+                      <div class="text-[10px] text-slate-700 truncate">${m.album}</div>
+                    </div>
+
+                    <div class="w-[90%] h-8 bg-stone-950 rounded border border-stone-700 flex items-center justify-around px-2 my-auto shadow-inner">
+                      <div class="w-5 h-5 rounded-full border-2 border-stone-300 bg-stone-800 flex items-center justify-center text-[7px] text-stone-300 font-bold">⚙</div>
+                      <div class="w-10 h-2 bg-amber-950/80 rounded border border-amber-900/60"></div>
+                      <div class="w-5 h-5 rounded-full border-2 border-stone-300 bg-stone-800 flex items-center justify-center text-[7px] text-stone-300 font-bold">⚙</div>
+                    </div>
+
+                    <div class="text-[8px] font-mono text-stone-400">ANALOG VAULT COMPACT CASSETTE</div>
+                  </div>
+                </div>
+              `}
+
+              <!-- Translucent Tracklist Teaser Overlay (Opacity ~35-40%, brightens on hover) -->
+              <div class="absolute inset-x-0 bottom-0 p-2.5 pt-8 bg-gradient-to-t from-black/95 via-black/70 to-transparent z-20 pointer-events-none transition-all duration-300">
+                <div class="text-[10px] space-y-0.5 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="font-bold text-amber-300 truncate flex items-center justify-between font-mono text-[9px]">
+                    <span>🎵 ${m.tracks.length} dz. • ${fmtTime(totalDur)}</span>
+                    <span class="text-amber-400 font-sans group-hover:underline">Atvērt ➔</span>
+                  </div>
+                  <div class="text-slate-300 truncate text-[9.5px] leading-tight font-sans">
+                    ${previewTracksText}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Caption Below Jewel Box: Artist, Album, Shelf Location -->
+          <div class="mt-2 px-1">
+            <div class="flex items-baseline justify-between gap-1">
+              <h3 class="text-xs font-bold text-white leading-tight truncate group-hover:text-amber-400 transition" title="${escapeStr(m.artist)}">
+                ${m.artist}
+              </h3>
+              ${m.year ? `<span class="text-[10px] font-mono text-amber-500/80 font-bold shrink-0">${m.year}</span>` : ''}
+            </div>
+            <div class="flex items-center justify-between gap-1 mt-0.5 text-[11px]">
+              <p class="text-slate-400 font-medium truncate" title="${escapeStr(m.album)}">
+                ${m.album}
+              </p>
+              ${currentUser && currentUser.role === 'admin' ? `
+                <button onclick="event.stopPropagation(); openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                        title="Mainīt vietu plauktā"
+                        class="text-[9px] text-slate-300 hover:text-amber-300 bg-slate-800/80 hover:bg-slate-700 px-1.5 py-0.2 rounded border border-slate-700/80 shrink-0 transition flex items-center gap-0.5">
+                  <span>📍</span>
+                  <span id="loc-badge-${m.id}" class="truncate max-w-[50px] font-medium">${m.shelf_location || 'Plaukts'}</span>
+                  <span class="text-[8px] text-slate-400">✏️</span>
+                </button>
+              ` : `
+                <span class="text-[9px] text-slate-400 bg-slate-800/80 px-1.5 py-0.2 rounded border border-slate-700/80 shrink-0">
+                  📍 ${m.shelf_location || 'Plaukts'}
+                </span>
+              `}
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons Below Case -->
+          <div class="mt-2 flex items-center gap-1.5" onclick="event.stopPropagation()">
+            <button onclick="addAllMediaToMixtape(${m.id})"
+                    title="Iekopēt visas ${m.tracks.length} dziesmas miksteipā"
+                    class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 hover:border-transparent transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+              <span>📼</span>
+              <span class="truncate">Kopēt visu uz miksteipu</span>
+            </button>
+            <button onclick="openMediaDetailModal(${m.id})"
+                    title="Atvērt kasetes dziesmu sarakstu"
+                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1">
+              <span>📜</span>
+            </button>
+          </div>
+
+          ${matchingTracks.length > 0 ? `
+            <div class="mt-1.5 text-[11px] text-amber-300 font-semibold bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/30 truncate">
+              🎯 Sakrīt: "${matchingTracks[0].title}"
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    function renderVinylShelfCard(m, totalDur, badgeColor, matchingTracks) {
+      const previewTracksText = m.tracks.slice(0, 3).map((t, idx) => `${idx + 1}. ${escapeStr(t.title)}`).join(' • ') + (m.tracks.length > 3 ? '...' : '');
+
+      return `
+        <div class="relative flex flex-col justify-between group cursor-pointer select-none transition-all duration-300 hover:-translate-y-1 w-full max-w-[340px] mx-auto"
+             onclick="openMediaDetailModal(${m.id})">
+
+          <!-- Outer Vinyl Sleeve Wrapper with Record peeking out on the right -->
+          <div class="relative pr-5 sm:pr-6">
+
+            <!-- THE BLACK VINYL DISC (Peeks out from the right sleeve opening) -->
+            <div class="vinyl-grooves absolute top-2 bottom-2 right-0 w-[55%] aspect-square rounded-full transition-all duration-500 group-hover:translate-x-3 pointer-events-none shadow-2xl">
+              <!-- Vinyl Conic Reflection Sheen -->
+              <div class="vinyl-sheen-gradient absolute inset-0 rounded-full pointer-events-none"></div>
+
+              <!-- Vinyl Center Label -->
+              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[38%] h-[38%] rounded-full bg-gradient-to-tr from-purple-700 to-amber-600 border-2 border-purple-900 shadow-md flex flex-col items-center justify-center text-center p-1 font-mono">
+                <span class="text-[7px] font-bold text-amber-200 uppercase leading-none">33⅓ RPM</span>
+                <span class="text-[8px] font-black text-white truncate max-w-full">${m.code}</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-950 border border-purple-950 mt-0.5"></div>
+              </div>
+            </div>
+
+            <!-- THE CARDBOARD VINYL SLEEVE (Sits in front of the disc) -->
+            <div class="relative rounded-xl overflow-hidden bg-slate-900 border-2 border-slate-700/80 shadow-2xl z-10 group-hover:border-purple-500/60 transition">
+
+              <!-- Ring Wear Overlay (Classic circular imprint on vintage sleeves) -->
+              <div class="vinyl-ringwear-gradient absolute inset-0 pointer-events-none z-20"></div>
+
+              <!-- Left Cardboard Spine Seam -->
+              <div class="absolute left-0 inset-y-0 w-2.5 bg-gradient-to-r from-black/60 to-transparent border-r border-white/10 z-20 pointer-events-none"></div>
+
+              <!-- Top Sleeve Bar: Code, Format & Location -->
+              <div class="px-2.5 py-1.5 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between gap-1 text-[10px] z-20 relative">
+                <div class="flex items-center gap-1.5 font-mono">
+                  <span class="tape-badge px-1.5 py-0.2 rounded text-[10px] font-bold ${badgeColor}">
+                    ${m.code}
+                  </span>
+                  <span class="text-purple-300 text-[9px] font-bold tracking-wider flex items-center gap-1">
+                    <span>💿</span>
+                    <span>VINYL 12" LP</span>
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                  ${currentUser && currentUser.role === 'admin' ? `
+                    <button onclick="openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                            title="Mainīt vietu"
+                            class="text-[9px] text-slate-300 hover:text-amber-300 bg-slate-800/90 px-1.5 py-0.5 rounded border border-slate-700 hover:border-amber-500/50 transition flex items-center gap-0.5">
+                      <span>📍</span>
+                      <span id="loc-badge-${m.id}" class="truncate max-w-[70px] font-medium">${m.shelf_location || 'Plaukts'}</span>
+                      <span class="text-[8px] text-slate-400">✏️</span>
+                    </button>
+                    <button onclick="triggerCropCoverPhoto(${m.id})" title="Apgriezt vāciņu pa kontūrām" class="text-[10px] text-slate-400 hover:text-amber-400 p-0.5 rounded hover:bg-slate-800 transition">✂️</button>
+                    <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt vāciņu" class="text-[10px] text-slate-400 hover:text-amber-400 p-0.5 rounded hover:bg-slate-800 transition">📷</button>
+                    <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst" class="text-[10px] text-slate-400 hover:text-rose-400 p-0.5 rounded hover:bg-slate-800 transition">🗑️</button>
+                  ` : `
+                    <span class="text-[9px] text-slate-300 bg-slate-800/90 px-1.5 py-0.5 rounded border border-slate-700 truncate max-w-[80px]">
+                      📍 ${m.shelf_location || 'Plaukts'}
+                    </span>
+                  `}
+                </div>
+              </div>
+
+              <!-- Main Sleeve Album Cover -->
+              <div class="relative w-full aspect-square overflow-hidden bg-slate-950 flex items-center justify-center">
+                ${m.photo_url ? `
+                  <img src="${m.photo_url}" alt="${escapeStr(m.album)}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
+                ` : `
+                  <div class="w-full h-full bg-gradient-to-br from-purple-950 via-slate-900 to-black p-4 flex flex-col justify-between items-center text-center">
+                    <span class="text-4xl mt-4">💿</span>
+                    <div>
+                      <div class="text-sm font-bold text-white">${m.artist}</div>
+                      <div class="text-xs text-purple-300 font-medium">${m.album}</div>
+                    </div>
+                    <div class="text-[9px] font-mono text-slate-400 mb-2">HI-FI STEREO RECORDING</div>
+                  </div>
+                `}
+
+                <!-- Translucent Tracklist Teaser Overlay (Opacity ~35-40%, brightens on hover) -->
+                <div class="absolute inset-x-0 bottom-0 p-2.5 pt-7 bg-gradient-to-t from-black/95 via-black/70 to-transparent z-20 pointer-events-none transition-all duration-300">
+                  <div class="text-[10px] space-y-0.5 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="font-bold text-purple-300 truncate flex items-center justify-between font-mono text-[9px]">
+                      <span>🎵 ${m.tracks.length} dz. • ${fmtTime(totalDur)}</span>
+                      <span class="text-purple-400 font-sans group-hover:underline">Atvērt ➔</span>
+                    </div>
+                    <div class="text-slate-300 truncate text-[9.5px] leading-tight font-sans">
+                      ${previewTracksText}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Sleeve Bottom Title Strip -->
+              <div class="px-2.5 py-1.5 bg-slate-950 border-t border-slate-800">
+                <h3 class="text-xs font-bold text-white leading-tight truncate group-hover:text-purple-300 transition" title="${m.artist}">
+                  ${m.artist}
+                </h3>
+                <p class="text-[11px] text-purple-400 font-medium truncate mt-0.5" title="${m.album}">
+                  ${m.album} ${m.year ? `(${m.year})` : ''}
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Quick Action Buttons Below Vinyl Sleeve -->
+          <div class="mt-2.5 flex items-center gap-1.5" onclick="event.stopPropagation()">
+            <button onclick="addAllMediaToMixtape(${m.id})"
+                    title="Iekopēt visas ${m.tracks.length} dziesmas miksteipā"
+                    class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-purple-500/15 hover:bg-purple-500 text-purple-300 hover:text-white border border-purple-500/30 hover:border-transparent transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+              <span>💿</span>
+              <span class="truncate">Kopēt visu uz miksteipu</span>
+            </button>
+            <button onclick="openMediaDetailModal(${m.id})"
+                    title="Atvērt vinila dziesmu sarakstu"
+                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1">
+              <span>📜</span>
+            </button>
+          </div>
+
+          ${matchingTracks.length > 0 ? `
+            <div class="mt-1.5 text-[11px] text-purple-300 font-semibold bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30 truncate">
+              🎯 Sakrīt: "${matchingTracks[0].title}"
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    function renderReelShelfCard(m, totalDur, badgeColor, matchingTracks) {
+      const previewTracksText = m.tracks.slice(0, 3).map((t, idx) => `${idx + 1}. ${escapeStr(t.title)}`).join(' • ') + (m.tracks.length > 3 ? '...' : '');
+
+      return `
+        <div class="relative flex flex-col justify-between group cursor-pointer select-none transition-all duration-300 hover:-translate-y-1 w-full max-w-[340px] mx-auto"
+             onclick="openMediaDetailModal(${m.id})">
+
+          <!-- Sturdy Cardboard Tape Box Container with reinforced edges -->
+          <div class="reel-box-shadow relative rounded-xl p-2.5 bg-gradient-to-b from-stone-900 via-stone-850 to-stone-950 border-3 border-stone-700 shadow-2xl transition group-hover:border-emerald-500/60">
+
+            <!-- Reinforced Cardboard Corner Braces -->
+            <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-amber-600/60 pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-amber-600/60 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-amber-600/60 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-amber-600/60 pointer-events-none"></div>
+
+            <!-- Box Header: Studio Master Tape Typography & Location -->
+            <div class="px-1.5 pb-2 border-b border-stone-700/80 flex items-center justify-between gap-1 text-[10px]">
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="tape-badge px-1.5 py-0.2 rounded text-[10px] font-bold ${badgeColor}">
+                  ${m.code}
+                </span>
+                <span class="text-emerald-400 text-[9px] font-bold tracking-wider flex items-center gap-1">
+                  <span>🧲</span>
+                  <span>REEL 1/4" • 19 CM/S</span>
+                </span>
+              </div>
+
+              <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                ${currentUser && currentUser.role === 'admin' ? `
+                  <button onclick="openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                          title="Mainīt vietu"
+                          class="text-[9px] text-slate-300 hover:text-amber-300 bg-stone-800/90 px-1.5 py-0.5 rounded border border-stone-700 hover:border-amber-500/50 transition flex items-center gap-0.5">
+                    <span>📍</span>
+                    <span id="loc-badge-${m.id}" class="truncate max-w-[70px] font-medium">${m.shelf_location || 'Plaukts'}</span>
+                    <span class="text-[8px] text-slate-400">✏️</span>
+                  </button>
+                  <button onclick="triggerCropCoverPhoto(${m.id})" title="Apgriezt vāciņu pa kontūrām" class="text-[10px] text-slate-400 hover:text-amber-400 p-0.5 rounded hover:bg-stone-800 transition">✂️</button>
+                  <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt vāciņu" class="text-[10px] text-slate-400 hover:text-amber-400 p-0.5 rounded hover:bg-stone-800 transition">📷</button>
+                  <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst" class="text-[10px] text-slate-400 hover:text-rose-400 p-0.5 rounded hover:bg-stone-800 transition">🗑️</button>
+                ` : `
+                  <span class="text-[9px] text-slate-300 bg-stone-800/90 px-1.5 py-0.5 rounded border border-stone-700 truncate max-w-[80px]">
+                    📍 ${m.shelf_location || 'Plaukts'}
+                  </span>
+                `}
+              </div>
+            </div>
+
+            <!-- Box Lid Center: Cover Art with Tape Reel Spool Motif -->
+            <div class="relative w-full aspect-[16/11] rounded-lg overflow-hidden bg-stone-950 border border-stone-700/80 my-2 flex items-center justify-center">
+              ${m.photo_url ? `
+                <img src="${m.photo_url}" alt="${escapeStr(m.album)}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30 pointer-events-none"></div>
+              ` : `
+                <!-- Reel Spool graphic when no photo -->
+                <div class="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-black p-3 flex flex-col justify-between items-center text-center">
+                  <div class="relative w-20 h-20 rounded-full border-4 border-stone-600 bg-stone-900 flex items-center justify-center shadow-inner mt-1">
+                    <div class="w-16 h-16 rounded-full border-4 border-amber-900 bg-amber-950/90 flex items-center justify-center">
+                      <div class="w-6 h-6 rounded-full bg-stone-300 border border-stone-400 flex items-center justify-center text-[8px] font-bold text-black">NAB</div>
+                    </div>
+                  </div>
+                  <div class="text-[9px] font-mono text-emerald-400 uppercase tracking-wider font-bold">18cm / 7" SPOOL MASTER</div>
+                </div>
+              `}
+
+              <!-- Spool Size & Tape Speed Label -->
+              <div class="absolute top-2 left-2 pointer-events-none">
+                <span class="bg-stone-950/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-[8px] font-mono font-bold text-emerald-400 border border-emerald-900/60 shadow">
+                  7.5 IPS • 4-TRACK
+                </span>
+              </div>
+
+              <!-- Translucent Tracklist Teaser Overlay (Opacity ~35-40%, brightens on hover) -->
+              <div class="absolute inset-x-0 bottom-0 p-2.5 pt-7 bg-gradient-to-t from-black/95 via-black/70 to-transparent z-20 pointer-events-none transition-all duration-300">
+                <div class="text-[10px] space-y-0.5 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="font-bold text-emerald-300 truncate flex items-center justify-between font-mono text-[9px]">
+                    <span>🎵 ${m.tracks.length} dz. • ${fmtTime(totalDur)}</span>
+                    <span class="text-emerald-400 font-sans group-hover:underline">Atvērt ➔</span>
+                  </div>
+                  <div class="text-slate-300 truncate text-[9.5px] leading-tight font-sans">
+                    ${previewTracksText}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Box Label Bottom Strip: Artist & Album -->
+            <div class="px-1 py-1">
+              <h3 class="text-xs font-bold text-white leading-tight truncate group-hover:text-emerald-300 transition" title="${m.artist}">
+                ${m.artist}
+              </h3>
+              <p class="text-[11px] text-emerald-400 font-medium truncate mt-0.5" title="${m.album}">
+                ${m.album} ${m.year ? `(${m.year})` : ''}
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Quick Action Buttons Below Reel Box -->
+          <div class="mt-2.5 flex items-center gap-1.5" onclick="event.stopPropagation()">
+            <button onclick="addAllMediaToMixtape(${m.id})"
+                    title="Iekopēt visas ${m.tracks.length} dziesmas miksteipā"
+                    class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-black border border-emerald-500/30 hover:border-transparent transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">
+              <span>🧲</span>
+              <span class="truncate">Kopēt visu uz miksteipu</span>
+            </button>
+            <button onclick="openMediaDetailModal(${m.id})"
+                    title="Atvērt lentas dziesmu sarakstu"
+                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1">
+              <span>📜</span>
+            </button>
+          </div>
+
+          ${matchingTracks.length > 0 ? `
+            <div class="mt-1.5 text-[11px] text-emerald-300 font-semibold bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30 truncate">
+              🎯 Sakrīt: "${matchingTracks[0].title}"
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+    }
+
+    function renderShelfCard(m, totalDur, badgeColor, typeIcon, typeLabel) {
+      const searchInput = document.getElementById('search-input');
+      const searchVal = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      const matchingTracks = searchVal ? m.tracks.filter(t => t.title.toLowerCase().includes(searchVal)) : [];
+
+      if (m.media_type === 'LP') {
+        return renderVinylShelfCard(m, totalDur, badgeColor, matchingTracks);
+      } else if (m.media_type === 'RT') {
+        return renderReelShelfCard(m, totalDur, badgeColor, matchingTracks);
+      } else {
+        return renderCassetteShelfCard(m, totalDur, badgeColor, matchingTracks);
+      }
+    }
+
+    function renderFullMediaCard(m, isModal = false) {
+      const tracksA = m.tracks.filter(t => t.side === 'A');
+      const tracksB = m.tracks.filter(t => t.side === 'B');
+      const durA = tracksA.reduce((sum, t) => sum + t.duration_sec, 0);
+      const durB = tracksB.reduce((sum, t) => sum + t.duration_sec, 0);
+      const totalDur = durA + durB;
+
+      const badgeColor = m.media_type === 'MC' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                       : m.media_type === 'LP' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                       : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+
+      const typeLabel = m.media_type === 'MC' ? 'kaseti'
+                      : m.media_type === 'RT' ? 'lentu'
+                      : 'albumu';
+      const typeIcon = m.media_type === 'MC' ? '📼'
+                     : m.media_type === 'RT' ? '🧲'
+                     : '💿';
+
+      const currentIndex = allMedia.findIndex(x => x.id === m.id);
+      const prevMedia = currentIndex > 0 ? allMedia[currentIndex - 1] : null;
+      const nextMedia = currentIndex >= 0 && currentIndex < allMedia.length - 1 ? allMedia[currentIndex + 1] : null;
+
+      return `
+        <div class="relative overflow-hidden bg-analog-800 rounded-2xl p-4 sm:p-5 border border-slate-700/80 shadow-2xl flex flex-col justify-between group">
+          
+          ${m.photo_url ? `
+            <!-- Semi-transparent Cassette Cover Art Background (Visible Under Tracklist!) -->
+            <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+              <img src="${m.photo_url}" alt="" class="w-full h-full object-cover object-center opacity-35 filter blur-[0.5px] scale-105 group-hover:opacity-45 group-hover:scale-100 transition-all duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-analog-900/90 via-analog-900/75 to-analog-900/50"></div>
+            </div>
+          ` : ''}
+
+          <div class="relative z-10 flex flex-col justify-between h-full">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-2.5">
+                <div class="flex items-center gap-2">
+                  <span class="tape-badge px-2 py-0.5 rounded text-[11px] font-bold border ${badgeColor}">
+                    ${m.code}
+                  </span>
+                  ${m.photo_url ? `
+                    <img src="${m.photo_url}" onclick="openPhotoModal('${m.photo_url}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                         title="Apskatīt vāciņu pilnā izmērā"
+                         class="w-7 h-7 object-cover rounded border border-slate-600/80 cursor-pointer hover:scale-110 transition shadow">
+                  ` : ''}
+                  <span class="text-xs text-slate-400 font-mono">
+                    ${m.media_type === 'MC' ? '📼 Kasete' : m.media_type === 'RT' ? '🧲 Lenta' : '💿 Vinils'}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  ${currentUser && currentUser.role === 'admin' ? `
+                    <button onclick="openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
+                            title="Mainīt vietu"
+                            class="text-[10px] text-slate-300 hover:text-amber-300 bg-slate-900/90 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-800 hover:border-amber-500/50 transition flex items-center gap-1 group/loc cursor-pointer shadow-sm active:scale-95">
+                      <span>📍</span>
+                      <span id="${isModal ? 'modal-loc-badge-' : 'loc-badge-'}${m.id}" class="font-medium">${m.shelf_location || 'Plaukts'}</span>
+                      <span class="text-[9px] text-slate-500 group-hover/loc:text-amber-400 transition">✏️</span>
+                    </button>
+                  ` : `
+                    <span class="text-[10px] text-slate-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">
+                      📍 ${m.shelf_location || 'Kolekcijā'}
+                    </span>
+                  `}
+                  ${currentUser && currentUser.role === 'admin' ? `
+                    <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt kasetes vāciņa attēlu"
+                            class="text-[11px] text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-800 transition">
+                      📷
+                    </button>
+                    <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst kaseti"
+                            class="text-[11px] text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition">
+                      🗑️
+                    </button>
+                  ` : ''}
+                  ${isModal ? `
+                    <button onclick="closeMediaDetailModal()" title="Aizvērt (Esc)"
+                            class="w-7 h-7 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm border border-slate-700/80 transition ml-1">
+                      ✕
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+
+              <h3 class="text-base font-bold text-white leading-tight drop-shadow-sm">${m.artist}</h3>
+              <p class="text-sm text-amber-400 font-medium">${m.album} ${m.year ? `(${m.year})` : ''}</p>
+              ${m.genre ? `<p class="text-[11px] text-slate-300 mt-0.5">${m.genre}</p>` : ''}
+              
+              <!-- Quick Copy Entire Media Button -->
+              <div class="mt-2.5">
+                <button onclick="addAllMediaToMixtape(${m.id})"
+                        title="Iekopēt visas dziesmas miksteipā (Puse A ➔ Puse A, Puse B ➔ Puse B)"
+                        class="w-full py-1.5 px-2.5 rounded-lg text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 hover:border-transparent transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                  <span>${typeIcon}</span>
+                  <span>Kopēt visu ${typeLabel} uz miksteipu</span>
+                  <span class="text-[10px] font-mono opacity-80">(${m.tracks.length} dz. • ${fmtTime(totalDur)})</span>
+                </button>
+              </div>
+
+              <!-- Visual Media Deck: Cover, Side A & Side B Real Photos -->
+              <div class="mt-3.5 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+                <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-300">
+                  <span class="flex items-center gap-1.5">
+                    <span>📸</span>
+                    <span>${m.media_type === 'MC' ? 'Kasetes Foto & Vāciņš' : m.media_type === 'LP' ? 'Plates Foto & Aploksne' : 'Lentas Foto & Kaste'}</span>
+                  </span>
+                  <span class="text-[10px] text-amber-400 font-mono font-normal">
+                    ${(m.photo_url ? 1 : 0) + (m.tape_photo_a ? 1 : 0) + (m.tape_photo_b ? 1 : 0)} / 3 foto
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <!-- 1. VĀCIŅŠ / APLOKSNE -->
+                  <div class="flex flex-col justify-between rounded-lg bg-slate-900/90 border border-slate-800 p-2 text-center group/photo">
+                    <div class="text-[10px] font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span class="truncate">🎴 Vāciņš</span>
+                      ${m.photo_url ? '<span class="text-[9px] text-emerald-400 font-mono">✓ Ir</span>' : '<span class="text-[9px] text-slate-500 font-mono">Nav</span>'}
+                    </div>
+                    <div class="relative w-full ${m.media_type === 'MC' ? 'aspect-[70/108]' : 'aspect-square'} rounded-md overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                      ${m.photo_url ? `
+                        <img src="${m.photo_url}" alt="Vāciņš" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition"
+                             onclick="openPhotoModal('${m.photo_url}', '${escapeStr(m.artist)} - Vāciņš')" title="Apskatīt pilnā izmērā">
+                      ` : `
+                        <div class="text-slate-600 text-xs flex flex-col items-center gap-1 p-2">
+                          <span class="text-2xl">🎴</span>
+                          <span class="text-[9px]">Nav vāciņa</span>
+                        </div>
+                      `}
+                    </div>
+                    ${currentUser && currentUser.role === 'admin' ? `
+                      <div class="mt-2 flex items-center justify-center gap-1">
+                        ${m.photo_url ? `
+                          <button onclick="triggerCropCoverPhoto(${m.id})" title="Apgriezt vāciņu pa kontūrām"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>✂️</span><span>Apgriezt</span>
+                          </button>
+                          <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt vāciņu"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>📷</span><span>Mainīt</span>
+                          </button>
+                        ` : `
+                          <button onclick="triggerChangeCoverPhoto(${m.id})"
+                                  class="w-full py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 text-[10px] font-bold transition flex items-center justify-center gap-1">
+                            <span>📷</span><span>Pievienot</span>
+                          </button>
+                        `}
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- 2. KORPUSS / PUSE A -->
+                  <div class="flex flex-col justify-between rounded-lg bg-slate-900/90 border border-slate-800 p-2 text-center group/photo">
+                    <div class="text-[10px] font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span class="truncate">${m.media_type === 'MC' ? '📼 Kasete (Puse A)' : m.media_type === 'LP' ? '💿 Plate (Puse A)' : '🧲 Spole (Puse A)'}</span>
+                      ${m.tape_photo_a ? '<span class="text-[9px] text-emerald-400 font-mono">✓ Ir</span>' : '<span class="text-[9px] text-slate-500 font-mono">Nav</span>'}
+                    </div>
+                    <div class="relative w-full ${m.media_type === 'MC' ? 'aspect-[100/64]' : 'aspect-square'} my-auto rounded-md overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                      ${m.tape_photo_a ? `
+                        <img src="${m.tape_photo_a}" alt="Puse A" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition"
+                             onclick="openPhotoModal('${m.tape_photo_a}', '${escapeStr(m.artist)} - Puse A')" title="Apskatīt pilnā izmērā">
+                      ` : `
+                        <div class="text-slate-600 text-xs flex flex-col items-center gap-1 p-2">
+                          <span class="text-2xl">${typeIcon}</span>
+                          <span class="text-[9px]">Puse A nav nobildēta</span>
+                        </div>
+                      `}
+                    </div>
+                    ${currentUser && currentUser.role === 'admin' ? `
+                      <div class="mt-2 flex items-center justify-center gap-1">
+                        ${m.tape_photo_a ? `
+                          <button onclick="triggerCropTapePhoto(${m.id}, 'A')" title="Apgriezt pa kontūrām"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>✂️</span><span>Apgriezt</span>
+                          </button>
+                          <button onclick="triggerUploadTapePhoto(${m.id}, 'A')" title="Pārtaisīt foto"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>📷</span><span>Mainīt</span>
+                          </button>
+                          <button onclick="deleteTapePhoto(${m.id}, 'A')" title="Dzēst Puses A foto"
+                                  class="p-1 rounded bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-400 text-[10px] border border-slate-700 transition">
+                            🗑️
+                          </button>
+                        ` : `
+                          <button onclick="triggerUploadTapePhoto(${m.id}, 'A')"
+                                  class="w-full py-1.5 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-sm">
+                            <span>📷</span><span>Nobildēt Pusi A</span>
+                          </button>
+                        `}
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <!-- 3. KORPUSS / PUSE B -->
+                  <div class="flex flex-col justify-between rounded-lg bg-slate-900/90 border border-slate-800 p-2 text-center group/photo">
+                    <div class="text-[10px] font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span class="truncate">${m.media_type === 'MC' ? '📼 Kasete (Puse B)' : m.media_type === 'LP' ? '💿 Plate (Puse B)' : '🧲 Spole (Puse B)'}</span>
+                      ${m.tape_photo_b ? '<span class="text-[9px] text-emerald-400 font-mono">✓ Ir</span>' : '<span class="text-[9px] text-slate-500 font-mono">Nav</span>'}
+                    </div>
+                    <div class="relative w-full ${m.media_type === 'MC' ? 'aspect-[100/64]' : 'aspect-square'} my-auto rounded-md overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                      ${m.tape_photo_b ? `
+                        <img src="${m.tape_photo_b}" alt="Puse B" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition"
+                             onclick="openPhotoModal('${m.tape_photo_b}', '${escapeStr(m.artist)} - Puse B')" title="Apskatīt pilnā izmērā">
+                      ` : `
+                        <div class="text-slate-600 text-xs flex flex-col items-center gap-1 p-2">
+                          <span class="text-2xl">${typeIcon}</span>
+                          <span class="text-[9px]">Puse B nav nobildēta</span>
+                        </div>
+                      `}
+                    </div>
+                    ${currentUser && currentUser.role === 'admin' ? `
+                      <div class="mt-2 flex items-center justify-center gap-1">
+                        ${m.tape_photo_b ? `
+                          <button onclick="triggerCropTapePhoto(${m.id}, 'B')" title="Apgriezt pa kontūrām"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>✂️</span><span>Apgriezt</span>
+                          </button>
+                          <button onclick="triggerUploadTapePhoto(${m.id}, 'B')" title="Pārtaisīt foto"
+                                  class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 text-[10px] font-semibold border border-slate-700 transition flex items-center justify-center gap-0.5">
+                            <span>📷</span><span>Mainīt</span>
+                          </button>
+                          <button onclick="deleteTapePhoto(${m.id}, 'B')" title="Dzēst Puses B foto"
+                                  class="p-1 rounded bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-400 text-[10px] border border-slate-700 transition">
+                            🗑️
+                          </button>
+                        ` : `
+                          <button onclick="triggerUploadTapePhoto(${m.id}, 'B')"
+                                  class="w-full py-1.5 px-2 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-black border border-sky-500/40 text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-sm">
+                            <span>📷</span><span>Nobildēt Pusi B</span>
+                          </button>
+                        `}
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tracklist Container with Glassmorphic Transparency (Artwork Visible Beneath!) -->
+              <div class="mt-3 pt-2 border-t border-slate-700/60 space-y-2 rounded-lg p-2.5 bg-slate-950/35 backdrop-blur-[1.5px] border border-slate-800/40 ${isModal ? 'max-h-[50vh] overflow-y-auto' : ''}">
+                ${tracksA.length > 0 ? `
+                  <div>
+                    <div class="flex items-center justify-between pb-0.5 ${isModal ? 'sticky top-0 bg-slate-950/90 backdrop-blur px-1 py-0.5 rounded' : ''}">
+                      <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                        Puse A <span class="text-slate-400 font-normal">(${fmtTime(durA)})</span>
+                      </span>
+                      <button onclick="addSideToMixtape(${m.id}, 'A')"
+                              title="Iekopēt visas Puses A dziesmas miksteipa Pusē A"
+                              class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 font-bold transition">
+                        + Visa Puse A
+                      </button>
+                    </div>
+                    <div class="space-y-1 mt-1">
+                      ${tracksA.map(t => renderTrackRow(m, t)).join('')}
+                    </div>
+                  </div>` : ''}
+
+                ${tracksB.length > 0 ? `
+                  <div class="mt-2.5">
+                    <div class="flex items-center justify-between pb-0.5 ${isModal ? 'sticky top-0 bg-slate-950/90 backdrop-blur px-1 py-0.5 rounded' : ''}">
+                      <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                        Puse B <span class="text-slate-400 font-normal">(${fmtTime(durB)})</span>
+                      </span>
+                      <button onclick="addSideToMixtape(${m.id}, 'B')"
+                              title="Iekopēt visas Puses B dziesmas miksteipa Pusē B"
+                              class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/15 hover:bg-sky-500 text-sky-300 hover:text-black border border-sky-500/30 font-bold transition">
+                        + Visa Puse B
+                      </button>
+                    </div>
+                    <div class="space-y-1 mt-1">
+                      ${tracksB.map(t => renderTrackRow(m, t)).join('')}
+                    </div>
+                  </div>` : ''}
+              </div>
+            </div>
+
+            ${isModal ? `
+              <!-- Modal Navigation between cassettes -->
+              <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                <button ${prevMedia ? `onclick="openMediaDetailModal(${prevMedia.id})"` : 'disabled'}
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none">
+                  <span>◀</span>
+                  <span class="truncate max-w-[120px] font-mono">${prevMedia ? prevMedia.code : 'Sākums'}</span>
+                </button>
+                <button onclick="closeMediaDetailModal()" class="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition">
+                  Aizvērt (Esc)
+                </button>
+                <button ${nextMedia ? `onclick="openMediaDetailModal(${nextMedia.id})"` : 'disabled'}
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none">
+                  <span class="truncate max-w-[120px] font-mono">${nextMedia ? nextMedia.code : 'Beigas'}</span>
+                  <span>▶</span>
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
     function renderCatalog() {
       const container = document.getElementById('media-list');
       document.getElementById('results-count').innerText = `Atrasti ${allMedia.length} ieraksti`;
+      updateViewModeButtons();
 
       if (allMedia.length === 0) {
         container.innerHTML = `
@@ -1479,6 +3037,10 @@
           </div>`;
         return;
       }
+
+      container.className = (catalogViewMode === 'shelf')
+        ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-6xl mx-auto items-start'
+        : 'grid grid-cols-1 md:grid-cols-2 gap-4 items-start';
 
       container.innerHTML = allMedia.map(m => {
         const tracksA = m.tracks.filter(t => t.side === 'A');
@@ -1498,112 +3060,11 @@
                        : m.media_type === 'RT' ? '🧲'
                        : '💿';
 
-        return `
-          <div class="relative overflow-hidden bg-analog-800 rounded-xl p-4 border border-slate-700/70 shadow-xl flex flex-col justify-between hover:border-slate-500 transition group">
-            
-            ${m.photo_url ? `
-              <!-- Semi-transparent Cassette Cover Art Background (Visible Under Tracklist!) -->
-              <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-                <img src="${m.photo_url}" alt="" class="w-full h-full object-cover object-center opacity-35 filter blur-[0.5px] scale-105 group-hover:opacity-45 group-hover:scale-100 transition-all duration-500">
-                <div class="absolute inset-0 bg-gradient-to-t from-analog-900/90 via-analog-900/75 to-analog-900/50"></div>
-              </div>
-            ` : ''}
-
-            <div class="relative z-10 flex flex-col justify-between h-full">
-              <div>
-                <div class="flex items-start justify-between gap-2 mb-2">
-                  <div class="flex items-center gap-2">
-                    <span class="tape-badge px-2 py-0.5 rounded text-[11px] font-bold border ${badgeColor}">
-                      ${m.code}
-                    </span>
-                    ${m.photo_url ? `
-                      <img src="${m.photo_url}" onclick="openPhotoModal('${m.photo_url}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
-                           title="Apskatīt vāciņu pilnā izmērā"
-                           class="w-7 h-7 object-cover rounded border border-slate-600/80 cursor-pointer hover:scale-110 transition shadow">
-                    ` : ''}
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    ${currentUser && currentUser.role === 'admin' ? `
-                      <button onclick="openChangeLocationModal(${m.id}, '${escapeStr(m.shelf_location || 'Plaukts')}', '${escapeStr(m.artist)} - ${escapeStr(m.album)}')"
-                              title="Mainīt vietu (Plaukts, Atvilktne, Dača...)"
-                              class="text-[10px] text-slate-300 hover:text-amber-300 bg-slate-900/90 hover:bg-slate-800 px-2 py-0.5 rounded border border-slate-800 hover:border-amber-500/50 transition flex items-center gap-1 group/loc cursor-pointer shadow-sm active:scale-95">
-                        <span>📍</span>
-                        <span id="loc-badge-${m.id}" class="font-medium">${m.shelf_location || 'Plaukts'}</span>
-                        <span class="text-[9px] text-slate-500 group-hover/loc:text-amber-400 transition">✏️</span>
-                      </button>
-                    ` : `
-                      <span class="text-[10px] text-slate-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">
-                        📍 ${m.shelf_location || 'Kolekcijā'}
-                      </span>
-                    `}
-                    ${currentUser && currentUser.role === 'admin' ? `
-                      <button onclick="triggerChangeCoverPhoto(${m.id})" title="Nomainīt kasetes vāciņa attēlu"
-                              class="text-[11px] text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-800 transition">
-                        📷
-                      </button>
-                      <button onclick="deleteMedia(${m.id}, '${escapeStr(m.artist)} - ${escapeStr(m.album)}')" title="Dzēst kaseti"
-                              class="text-[11px] text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition">
-                        🗑️
-                      </button>
-                    ` : ''}
-                  </div>
-                </div>
-
-                <h3 class="text-sm font-bold text-white leading-tight">${m.artist}</h3>
-                <p class="text-xs text-amber-400 font-medium">${m.album} ${m.year ? `(${m.year})` : ''}</p>
-                ${m.genre ? `<p class="text-[10px] text-slate-300 mt-0.5">${m.genre}</p>` : ''}
-                
-                <!-- Quick Copy Entire Media Button (Cassette / Tape / Vinyl) -->
-                <div class="mt-2.5">
-                  <button onclick="addAllMediaToMixtape(${m.id})"
-                          title="Iekopēt visas dziesmas miksteipā (Puse A ➔ Puse A, Puse B ➔ Puse B)"
-                          class="w-full py-1.5 px-2.5 rounded-lg text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 hover:border-transparent transition flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                    <span>${typeIcon}</span>
-                    <span>Kopēt visu ${typeLabel} uz miksteipu</span>
-                    <span class="text-[10px] font-mono opacity-80">(${m.tracks.length} dz. • ${fmtTime(totalDur)})</span>
-                  </button>
-                </div>
-
-                <!-- Tracklist Container with Glassmorphic Transparency (Artwork Visible Beneath!) -->
-                <div class="mt-3 pt-2 border-t border-slate-700/60 space-y-2 rounded-lg p-2 bg-slate-950/35 backdrop-blur-[1.5px] border border-slate-800/40">
-                  ${tracksA.length > 0 ? `
-                    <div>
-                      <div class="flex items-center justify-between pb-0.5">
-                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
-                          Puse A <span class="text-slate-400 font-normal">(${fmtTime(durA)})</span>
-                        </span>
-                        <button onclick="addSideToMixtape(${m.id}, 'A')"
-                                title="Iekopēt visas Puses A dziesmas miksteipa Pusē A"
-                                class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 font-bold transition">
-                          + Visa Puse A
-                        </button>
-                      </div>
-                      <div class="space-y-1 mt-1">
-                        ${tracksA.map(t => renderTrackRow(m, t)).join('')}
-                      </div>
-                    </div>` : ''}
-
-                  ${tracksB.length > 0 ? `
-                    <div class="mt-2">
-                      <div class="flex items-center justify-between pb-0.5">
-                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
-                          Puse B <span class="text-slate-500 font-normal">(${fmtTime(durB)})</span>
-                        </span>
-                        <button onclick="addSideToMixtape(${m.id}, 'B')"
-                                title="Iekopēt visas Puses B dziesmas miksteipa Pusē B"
-                                class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/15 hover:bg-sky-500 text-sky-300 hover:text-black border border-sky-500/30 font-bold transition">
-                          + Visa Puse B
-                        </button>
-                      </div>
-                      <div class="space-y-1 mt-1">
-                        ${tracksB.map(t => renderTrackRow(m, t)).join('')}
-                      </div>
-                    </div>` : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
+        if (catalogViewMode === 'shelf') {
+          return renderShelfCard(m, totalDur, badgeColor, typeIcon, typeLabel);
+        } else {
+          return renderFullMediaCard(m, false);
+        }
       }).join('');
     }
 

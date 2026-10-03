@@ -26,11 +26,21 @@ def init_db():
         year INTEGER,
         genre TEXT,
         photo_url TEXT,
+        tape_photo_a TEXT,
+        tape_photo_b TEXT,
         shelf_location TEXT DEFAULT 'Koferis 1',
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+    
+    # Auto-migration for existing database
+    cursor.execute("PRAGMA table_info(media)")
+    existing_cols = [c["name"] for c in cursor.fetchall()]
+    if "tape_photo_a" not in existing_cols:
+        cursor.execute("ALTER TABLE media ADD COLUMN tape_photo_a TEXT")
+    if "tape_photo_b" not in existing_cols:
+        cursor.execute("ALTER TABLE media ADD COLUMN tape_photo_b TEXT")
     
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS tracks (

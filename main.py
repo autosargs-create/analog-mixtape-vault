@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import database
 import scanner
 import auth
+import image_tools
 
 app = FastAPI(title="Analog Mixtape Vault")
 
@@ -72,6 +73,19 @@ class MixtapeCreate(BaseModel):
     target_media: str = "C60" # C60, C90, C120
     notes: Optional[str] = None
     items: List[MixtapeItemIn] = []
+
+class CropPhotoIn(BaseModel):
+    photo_url: str
+    box: Optional[List[int]] = None # [x, y, w, h]
+    rotation: int = 0
+    auto_detect: bool = False
+    media_id: Optional[int] = None
+    target_slot: Optional[str] = "cover" # cover, tape_a, tape_b
+
+class AutoContourIn(BaseModel):
+    photo_url: str
+    aspect_ratio: Optional[float] = None
+
 
 # --- Authentication Endpoints ---
 
@@ -290,6 +304,14 @@ async def api_scan_photo(request: Request, file: UploadFile = File(...)):
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
+        try:
+            from PIL import Image
+            orig_img = Image.open(dest_path)
+            norm_img = image_tools.fix_orientation(orig_img)
+            norm_img.save(dest_path, "JPEG", quality=92)
+        except Exception:
+            pass
+
         data = scanner.scan_cassette_image(dest_path)
         data["photo_url"] = f"/photos/{filename}"
         return data
@@ -308,6 +330,13 @@ async def api_upload_photo(request: Request, file: UploadFile = File(...)):
         dest_path = os.path.join(PHOTOS_DIR, filename)
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        try:
+            from PIL import Image
+            orig_img = Image.open(dest_path)
+            norm_img = image_tools.fix_orientation(orig_img)
+            norm_img.save(dest_path, "JPEG", quality=92)
+        except Exception:
+            pass
         return {"success": True, "photo_url": f"/photos/{filename}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Augšupielādes kļūda: {str(e)}")
@@ -322,6 +351,13 @@ async def api_update_media_photo(media_id: int, request: Request, file: UploadFi
         dest_path = os.path.join(PHOTOS_DIR, filename)
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        try:
+            from PIL import Image
+            orig_img = Image.open(dest_path)
+            norm_img = image_tools.fix_orientation(orig_img)
+            norm_img.save(dest_path, "JPEG", quality=92)
+        except Exception:
+            pass
         photo_url = f"/photos/{filename}"
         
         conn = database.get_db()
@@ -332,6 +368,122 @@ async def api_update_media_photo(media_id: int, request: Request, file: UploadFi
         return {"success": True, "photo_url": photo_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Kļūda saglabājot vāciņu: {str(e)}")
+
+@app.post("/api/media/{media_id}/tape-photo")
+async def api_update_media_tape_photo(
+    media_id: int,
+    request: Request,
+    file: UploadFile = File(...),
+    side: str = Form("A")
+):
+    auth.require_admin(request)
+    try:
+        orig_name = file.filename or "tape.jpg"
+        ext = os.path.splitext(orig_name)[1].lower() or ".jpg"
+        side_clean = "b" if side.upper() == "B" else "a"
+        filename = f"tape_{media_id}_{side_clean}_{int(time.time() * 1000)}{ext}"
+        dest_path = os.path.join(PHOTOS_DIR, filename)
+        with open(dest_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        try:
+            from PIL import Image
+            orig_img = Image.open(dest_path)
+            norm_img = image_tools.fix_orientation(orig_img)
+            norm_img.save(dest_path, "JPEG", quality=92)
+        except Exception:
+            pass
+        photo_url = f"/photos/{filename}"
+        
+        column = "tape_photo_b" if side_clean == "b" else "tape_photo_a"
+        conn = database.get_db()
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE media SET {column} = ? WHERE id = ?", (photo_url, media_id))
+        conn.commit()
+        conn.close()
+        return {"success": True, "side": side_clean.upper(), "photo_url": photo_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Kļūda saglabājot kasetes foto: {str(e)}")
+
+@app.delete("/api/media/{media_id}/tape-photo")
+def api_delete_media_tape_photo(media_id: int, request: Request, side: str = "A"):
+    auth.require_admin(request)
+    side_clean = "b" if side.upper() == "B" else "a"
+    column = "tape_photo_b" if side_clean == "b" else "tape_photo_a"
+    conn = database.get_db()
+    cursor = conn.cursor()
+    cursor.execute(f"UPDATE media SET {column} = NULL WHERE id = ?", (media_id,))
+    conn.commit()
+    conn.close()
+    return {"success": True, "side": side_clean.upper()}
+
+
+@app.post("/api/auto-contour")
+def api_auto_contour(data: AutoContourIn, request: Request):
+    auth.require_admin(request)
+    photo_rel = data.photo_url.lstrip("/")
+    if photo_rel.startswith("photos/"):
+        photo_rel = photo_rel[len("photos/"):]
+    file_path = os.path.join(PHOTOS_DIR, photo_rel)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Attēls nav atrasts")
+    try:
+        from PIL import Image
+        img = Image.open(file_path)
+        img = image_tools.fix_orientation(img)
+        w, h = img.size
+        box = image_tools.auto_detect_object_bounds(img, target_aspect_ratio=data.aspect_ratio)
+        return {
+            "success": True,
+            "box": {"x": box[0], "y": box[1], "w": box[2], "h": box[3]},
+            "image_size": {"w": w, "h": h}
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Kontūras analīzes kļūda: {str(e)}")
+
+@app.post("/api/crop-photo")
+def api_crop_photo(data: CropPhotoIn, request: Request):
+    auth.require_admin(request)
+    photo_rel = data.photo_url.lstrip("/")
+    if photo_rel.startswith("photos/"):
+        photo_rel = photo_rel[len("photos/"):]
+    file_path = os.path.join(PHOTOS_DIR, photo_rel)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Attēls nav atrasts")
+    try:
+        box_tuple = None
+        if data.auto_detect:
+            from PIL import Image
+            img = Image.open(file_path)
+            img = image_tools.fix_orientation(img)
+            box_tuple = image_tools.auto_detect_object_bounds(img)
+        elif data.box and len(data.box) == 4:
+            box_tuple = (int(data.box[0]), int(data.box[1]), int(data.box[2]), int(data.box[3]))
+            
+        prefix = f"cover_crop_{data.media_id}" if data.media_id else "cover_crop"
+        new_filename = image_tools.crop_and_save_image(
+            input_path=file_path,
+            output_dir=PHOTOS_DIR,
+            box=box_tuple,
+            rotation=data.rotation,
+            prefix=prefix
+        )
+        new_photo_url = f"/photos/{new_filename}"
+        
+        if data.media_id:
+            col = "tape_photo_a" if data.target_slot == "tape_a" else ("tape_photo_b" if data.target_slot == "tape_b" else "photo_url")
+            conn = database.get_db()
+            cursor = conn.cursor()
+            cursor.execute(f"UPDATE media SET {col} = ? WHERE id = ?", (new_photo_url, data.media_id))
+            conn.commit()
+            conn.close()
+            
+        return {
+            "success": True,
+            "photo_url": new_photo_url,
+            "box": box_tuple
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Apgriešanas kļūda: {str(e)}")
 
 @app.patch("/api/media/{media_id}/location")
 @app.post("/api/media/{media_id}/location")
